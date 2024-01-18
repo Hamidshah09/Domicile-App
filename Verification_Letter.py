@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import *
 from tkinter import ttk, messagebox
 from fpdf import FPDF
+from fpdf.fonts import FontFace
 import os
 from datetime import date
 import Validation
@@ -696,106 +697,96 @@ class Verification(tk.Tk):
 
             pdf = FPDF()
             pdf.add_page()
-
+            pdf.set_left_margin(15)
+            pdf.set_right_margin(15)
             # pdf.add_font('courier', '', "c:\WINDOWS\FONTS\courier.ttf", uni=True)
             # pdf.add_font('courier', 'B', "c:\WINDOWS\FONTS\courier.ttf", uni=True)
             pdf.set_font('courier', 'B', size=16)
             pdf.set_fill_color(211, 211, 211)
             # pdf.image('govt_logo.png', x=10, y=10, w=30, h=30)
             pdf.ln(7)
-            # pdf.cell(20, 6, txt='', align='C')
-            pdf.cell(0, 6, txt='OFFICE OF THE DISTRICT MAGISTRATE',
-                     ln=1, align='C')
-            # pdf.cell(20, 6, txt='', align='C')
-            pdf.cell(0, 6, txt='ISLAMABAD CAPITAL TERRITORY',
-                     ln=1, align='C')
-            # pdf.cell(20, 6, txt='', align='C')
-            pdf.cell(0, 6, txt='ISLAMABAD',
-                     ln=1, align='C')
+            # pdf.cell(20, 6, text='', align='C')
+            pdf.cell(0, 6, text='OFFICE OF THE DISTRICT MAGISTRATE',
+                     new_x="LMARGIN", new_y="NEXT", align='C')
+            # pdf.cell(20, 6, text='', align='C')
+            pdf.cell(0, 6, text='ISLAMABAD CAPITAL TERRITORY',
+                     new_x="LMARGIN", new_y="NEXT", align='C')
+            # pdf.cell(20, 6, text='', align='C')
+            pdf.cell(0, 6, text='ISLAMABAD',
+                     new_x="LMARGIN", new_y="NEXT", align='C')
             pdf.set_font('courier', size=14)
             pdf.ln(8)
-            pdf.cell(10, 6, txt='')
-            pdf.cell(20, 6, txt='From:', align='L')
-            pdf.cell(10, 6, txt='')
-            pdf.cell(30, 6, txt='The District Magistrate',
-                     ln=1, align='L')
-            pdf.cell(40, 6, txt='')
-            pdf.cell(30, 6, txt='ICT, Islamabad',
-                     ln=1, align='L')
+            pdf.cell(10, 6, text='')
+            pdf.cell(20, 6, text='From:', align='L')
+            pdf.cell(10, 6, text='')
+            pdf.cell(30, 6, text='The District Magistrate',
+                     new_x="LMARGIN", new_y="NEXT", align='L')
+            pdf.cell(40, 6, text='')
+            pdf.cell(30, 6, text='ICT, Islamabad',
+                     new_x="LMARGIN", new_y="NEXT", align='L')
             pdf.ln(8)
-            pdf.cell(10, 6, txt='')
-            pdf.cell(20, 6, txt='To:', align='L')
-            pdf.cell(10, 6, txt='')
-            pdf.cell(0, 6, txt='{}'.format(
-                data[0]['Letter_Sent_by']), align='L', ln=1)
-            pdf.cell(40, 6, txt='')
-            pdf.cell(0, 6, txt='{}'.format(
-                data[0]['Designation']), align='L', ln=1)
+            pdf.cell(10, 6, text='')
+            pdf.cell(20, 6, text='To:', align='L')
+            pdf.cell(10, 6, text='')
+            pdf.cell(0, 6, text='{}'.format(
+                data[0]['Letter_Sent_by']), align='L', new_x="LMARGIN", new_y="NEXT")
+            pdf.cell(40, 6, text='')
+            pdf.cell(0, 6, text='{}'.format(
+                data[0]['Designation']), align='L', new_x="LMARGIN", new_y="NEXT")
             for address in data[0]['sender_address'].split(">"):
-                pdf.cell(40, 6, txt='')
-                pdf.cell(0, 6, txt=f'{address}', align='L', ln=1)
+                pdf.cell(40, 6, text='')
+                pdf.cell(0, 6, text=f'{address}', align='L', new_x="LMARGIN", new_y="NEXT")
 
             pdf.ln(8)
-            pdf.cell(10, 6, txt='', align='L')
             if data[0]['Dispatch_No'] is not None:
                 pdf.cell(
-                    20, 6, txt='No.{}/Domicile'.format(data[0]['Dispatch_No']), align='L')
-            # pdf.cell(15, 6, txt='', align='L')
+                    20, 6, text='No.{}/Domicile'.format(data[0]['Dispatch_No']), align='L')
+            # pdf.cell(15, 6, text='', align='L')
             issuance_date = data[0]['timestamp'].strftime('%d-%m-%Y')
-            pdf.cell(0, 6, txt='Dated: {}'.format(
-                issuance_date), ln=1,  align='R')
+            pdf.cell(0, 6, text='Dated: {}'.format(
+                issuance_date), new_x="LMARGIN", new_y="NEXT",  align='R')
             pdf.ln(8)
 
-            pdf.cell(10, 6, txt='')
-            pdf.cell(15, 6, txt='Subject:', align='L')
-            pdf.cell(15, 6, txt='')
+            
+            pdf.cell(15, 6, text='Subject:', align='L')
+            pdf.cell(15, 6, text='')
             pdf.set_font('courier', 'BU', size=14)
-            pdf.cell(40, 6, txt='VERIFICATION OF DOMICILE',
-                     ln=1, align='L')
+            pdf.cell(40, 6, text='VERIFICATION OF DOMICILE',
+                     new_x="LMARGIN", new_y="NEXT", align='L')
 
             pdf.set_font('courier', size=14)
-            pdf.cell(10, 6, txt='')
+            
             pdf.multi_cell(
-                0, 10, txt='        Kindly refer to your office Letter No. {}, Dated {} on the subject noted above.'.format(data[0]['Letter_No'], data[0]['Letter_Date']))
-            pdf.cell(10, 6, txt='')
-            pdf.multi_cell(
-                0, 10, txt='2.     The record reveals that the following domicile certificate has been issued by this office:-')
+                0, 10, text='    Kindly refer to your office Letter No. {}, Dated {} on the subject noted above.'.format(data[0]['Letter_No'], data[0]['Letter_Date']), new_x="LMARGIN", new_y="NEXT")
+            pdf.multi_cell(0, 10, text='2.      The record reveals that the following domicile certificate has been issued by this office:-')
+            
             pdf.ln(4)
-            pdf.set_font('courier', 'b', size=14)
-            pdf.cell(10, 6, txt='')
-            pdf.cell(17, 6, txt='S.No.', border='LTR')
-            pdf.cell(85, 6, txt='Name & Address', border='LTR')
-            pdf.cell(38, 6, txt='Domicile No', border='LTR')
-            pdf.cell(42, 6, txt='Domicile Issue', border='LTR', ln=1)
-            
-            pdf.cell(10, 6, txt='')
-            pdf.cell(17, 6, txt='', border='LBR')
-            pdf.cell(85, 6, txt='', border='LBR')
-            pdf.cell(38, 6, txt='', border='LBR')
-            pdf.cell(42, 6, txt='Date', border='LBR', ln=1)
-            pdf.set_font('courier', size=14)
-            # lst = [[1, '61101-1234596-8', 'Manha Hamid Kakakhel', 'Syed M Hamid Shah Kaka Khel'], [2, '61101-1234586-8', 'Maira Hamid Jehangir Shah Kakakhel', 'Hamid Shah'], [3, '61101-1234596-8', 'Habiba Hamid Shah Kaka Khel', 'Hamid Shah']]
-
-            
-            with pdf.table() as table:
+            sl = 0
+            grey = (128, 128, 128)
+            white = (255, 255, 255)
+            headings_style = FontFace(emphasis="BOLD", fill_color=grey)
+            table_style = FontFace(fill_color=white)
+            with pdf.table(headings_style=headings_style, first_row_as_headings=False, line_height=7, padding=2, text_align=("CENTER", "LEFT", "CENTER", "CENTER"), col_widths=(10, 41, 23, 18)) as table:
+                row = table.row()
+                row.cell("S.No")
+                row.cell("Name & Address")
+                row.cell("Domicile No")
+                row.cell("Issuance Date")
                 for data_row in data:
-                    row = table.row()
-                    for datum in data_row:
-                        row.cell(datum)
-            
-            pdf.cell(10, 6, txt='')
-            pdf.cell(17, 6, txt='', border='T')
-            pdf.cell(85, 6, txt='', border='T')
-            pdf.cell(38, 6, txt='', border='T')
-            pdf.cell(42, 6, txt='', border='T', ln=1)
-            pdf.ln(8)
+                    row = table.row(style=table_style)
+                    sl += 1
+                    row.cell(str(sl))
+                    row.cell(str(data_row["Applicant_Name"]) + " R/o " + str(data_row["address"]))
+                    row.cell(str(data_row["Domicile_No"]))
+                    row.cell(str(data_row["Domicile_Date"]))
+            pdf.ln(4)
             pdf.ln(8)
             # signature
             pdf.set_font('courier', 'B', size=14)
-            pdf.cell(70, 6, txt='')
-            pdf.cell(0, 6, txt='Incharge Domicile Branch', align='C', ln=1)
-            pdf.cell(70, 6, txt='')
-            pdf.cell(0, 6, txt='ICT, Islamabad', align='C', ln=1)
+            pdf.cell(70, 6, text='')
+            pdf.cell(0, 6, text='Incharge Domicile Branch', align='C', new_x="LMARGIN", new_y="NEXT")
+            pdf.cell(70, 6, text='')
+            pdf.cell(0, 6, text='ICT, Islamabad', align='C', new_x="LMARGIN", new_y="NEXT")
 
             pdf.output('Letter.pdf')
 
