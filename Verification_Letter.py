@@ -789,7 +789,6 @@ class Verification(tk.Tk):
             pdf.cell(0, 6, text='ICT, Islamabad', align='C', new_x="LMARGIN", new_y="NEXT")
 
             pdf.output('Letter.pdf')
-
             path = 'Letter.pdf'
             os.system(path)
         else:
