@@ -662,6 +662,7 @@ class dataentry(tk.Tk):
         if domicile_status:
             if domicile_status.text == 'Issued':
                 messagebox.showerror('Domicile issued', "Domicile against given cnic is already issued from Punjab")
+
         Query = "Select CNIC from domicile where CNIC = %s;"
         con, cur = open_con(False)
         cur.execute(Query, [cnic])
@@ -688,7 +689,7 @@ class dataentry(tk.Tk):
         data = cur.fetchall()
         if data:
             messagebox.showerror('NOC already issued', 'NOC for ICT leter issued.')
-        Query = "Select cnic, reason from black_list where cnic = %s;"
+        Query = "Select cnic, reason from black_list where cnic = %s and status = 'Blocked';"
         cur.execute(Query, [cnic])
         data = cur.fetchall()
         if data:
