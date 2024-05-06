@@ -1,0 +1,142 @@
+
+        window.onload = function () {
+            domVerification();
+        };
+        // Function to process the URL and set the value of the textbox
+        function domVerification() {
+            // Get the value of the "d" parameter from the URL
+            var domCnic = getParameterByName('d');
+            var decryptedVal = "";
+
+            if (domCnic) {
+                // Set the value of the textbox
+                document.getElementById('CNICdomNo').value = domCnic;
+                // Trigger the button click event
+                document.getElementById('btnCNICdomNo').click();
+
+            }
+        }
+
+        // Function to extract the value of the "d" parameter from the URL
+        function getParameterByName(name, url) {
+            if (!url) url = window.location.href;
+            name = name.replace(/[\[\]]/g, "\\$&");
+            var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+                results = regex.exec(url);
+            if (!results) return null;
+            if (!results[2]) return '';
+            return results[2];
+        }
+
+        var slickWrapper = document.querySelector(".slick-wrapper");
+        slickWrapper.style.display = "none";
+
+        $("#btnCNICdomNo").click(function (e) {
+            $("#noRecordFoundMessage").html("");
+            $("#multiTrackingGrid").html("");
+            var fieldstatus = {
+                'CNICdomNo': 0
+            }
+            e.preventDefault();
+            if ($("#CNICdomNo").val()) {
+                $("#CNICdomNo").addClass('form-control-success').removeClass("form-control-danger");
+                $("#ApplicantCNICValidateMessage").html('');
+                fieldstatus['CNICdomNo'] = 1;
+            }
+            else {
+                $("#CNICdomNo").addClass('form-control-danger').removeClass("form-control-success");
+                $("#ApplicantCNICValidateMessage").html('CNIC or Domicile No is required!');
+                fieldstatus['CNICdomNo'] = 0;
+                $("#CNICdomNo").focus();
+            }
+
+            if (fieldstatus['CNICdomNo'] == 1) {
+                var cnicDomNo = $("#CNICdomNo").val();
+                var _serviceURL = window.location.origin + "https://cfc.kp.gov.pk//Domicile/Domicile/GetDomicileVerificationDetail?cnicDomNo=" + cnicDomNo;
+                $.ajax({
+                    type: 'GET',
+                    url: _serviceURL,
+                    dataType: 'json',
+                    success: function (data) {
+                        var returnData = JSON.parse(data);
+
+                        if (returnData.Success == 0) {
+                            var Message = returnData.Message
+                            $("#noRecordFoundMessage").removeClass('d-none')
+                            $("#noRecordFoundMessage").html(Message);
+                        }
+
+                        else if (returnData.TrackListData.length == 1) {
+                            var modelData = JSON.stringify(returnData.TrackListData);
+
+                            var _url = '/Domicile/Domicile/GetRecord';
+                            $.ajax({
+                                type: "GET",
+                                url: _url + '?modelData=' + encodeURIComponent(modelData),
+
+                                success: function (result) {
+
+                                    $("#myModalContent").html(result);
+                                    $("#btnPopUp").click();
+                                    $("#forgotTrackingForm .popup").css({ display: 'none' });
+                                },
+                                error: function (error) {
+                                    console.log(error)
+                                }
+                            });
+                        }
+                        else if (returnData.Success == 1 && returnData.TrackListData.length > 1) {
+                            console.log("Hello")
+
+                            var lengthOfArray = returnData.TrackListData.length;
+                            $("#multiTrackingGrid").append("<div class='myScrollTable' style='border: solid 2px #145a32;border-radius: 5px;margin-top: 20px;'><table class='table' id='tblGridofTracking'> <thead><tr><th style='width: 130px;'>Domicile No.</th><th>Name</th><th style='width: 170px;'>CNIC</th><th>Status</th><th>Action</th></tr></thead> <tbody> </tbody></table></div>")
+                            for (var j = 0; j < lengthOfArray; j++) {
+                                var modelData = JSON.stringify(returnData.TrackListData[j]);
+                                $("#multiTrackingGrid table tbody").append("<tr><td>" + returnData.TrackListData[j].domicileNo + "</td><td>" + returnData.TrackListData[j].Dom_Name + "</td><td>" + returnData.TrackListData[j].Dom_CnicFormatted + "</td><td>" + returnData.TrackListData[j].DomicileStatus + "</td><td class='text-center'><button class='btntrack btn-secondary' id='btnTrackOnGrid' onclick='showRecord(" + modelData + ")'><i class='fa fa-eye mr-2'></i>View</button></td></tr>");
+                            }
+                        }
+                    },
+                    error: function (error) {
+                        console.log(error);
+                    }
+                });
+            }
+            else {
+                console.log("Incomplete")
+            }
+        })
+
+        $('#CNICdomNo').keyup(function () {
+            $("#multiTrackingGrid").html('');
+        });
+
+        $('select').on('change', function (e) {
+            $("#multiTrackingGrid").html('');
+        });
+
+        function showRecord(data) {
+            var modelData = JSON.stringify(data);
+            modelData = modelData.replace(/"/g, '\"');
+            modelData = "[" + modelData + "]";
+            var _url = '/Domicile/Domicile/GetRecord';
+            $.ajax({
+                type: "GET",
+                url: _url + '?modelData=' + encodeURIComponent(modelData),
+
+                success: function (result) {
+
+                    $("#myModalContent").html(result);
+                    $("#btnPopUp").click();
+                    $("#forgotTrackingForm .popup").css({ display: 'none' });
+                },
+                error: function (error) {
+                    console.log(error)
+                }
+            });
+        }
+
+    
+
+--------------
+https://cfc.kp.gov.pk/Domicile/Domicile/GetDomicileVerificationDetail?cnicDomNo=8210285734907
+https://domicile.punjab.gov.pk/AjaxCall.aspx?ID=3410266794073

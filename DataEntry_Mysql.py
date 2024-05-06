@@ -6,6 +6,9 @@ from tkinter import *
 from tkinter import ttk, messagebox
 from tkinter.filedialog import askopenfile
 from datetime import datetime
+
+from bs4 import BeautifulSoup
+import requests
 from Monthly_Report import Monthly_Report
 from fpdf import FPDF
 import json
@@ -635,6 +638,8 @@ class dataentry(tk.Tk):
             messagebox.showerror('Error', 'Please recheck selection')
 
 
+    # def check_noc(self):
+    
 
     def check_dup_cnic(self, **kwargs):
         if self.edit_mode == TRUE:
@@ -650,27 +655,46 @@ class dataentry(tk.Tk):
         else:
             messagebox.showerror('showerror', 'CNIC is not 13 digit')
             return
-
+        url = f"https://domicile.punjab.gov.pk/AjaxCall.aspx?ID={self.Entry_CNIC.get()}"
+        result = requests.get(url)
+        soup = BeautifulSoup(result.content, 'html.parser')
+        domicile_status = soup.find('span', {'id':'lblStatus'})
+        if domicile_status:
+            if domicile_status.text == 'Issued':
+                messagebox.showerror('Domicile issued', "Domicile against given cnic is already issued from Punjab")
         Query = "Select CNIC from domicile where CNIC = %s;"
         con, cur = open_con(False)
         cur.execute(Query, [cnic])
         data = cur.fetchall()
-        if len(data) != 0:
-
-            messagebox.showerror('showerror', 'CNIC already exist')
+        if data:
+            messagebox.showerror('CNIC Error', 'CNIC already exist')
             cur.close()
             con.close()
             return 'CNIC already exist'
         
         Query = "Select CNIC from cancellation where CNIC = %s;"
-        con, cur = open_con(False)
         cur.execute(Query, [cnic])
         data = cur.fetchall()
-        if len(data) != 0:
-            messagebox.showerror('Domicile Cancelled', 'Applicant Domicil has been cancelled')
-            cur.close()
-            con.close()
-            
+        if data:
+            messagebox.showerror('Domicile Cancelled', 'Applicant Domicile has been cancelled')
+        
+        Query = "Select cnic from noc_applicants where CNIC = %s;"
+        cur.execute(Query, [cnic])
+        data = cur.fetchall()
+        if data:
+            messagebox.showerror('NOC already issued', 'NOC has already been issued to Applicant')
+        Query = "Select CNIC from noc_ict_applicants where CNIC = %s;"
+        cur.execute(Query, [cnic])
+        data = cur.fetchall()
+        if data:
+            messagebox.showerror('NOC already issued', 'NOC for ICT leter issued.')
+        Query = "Select cnic, reason from black_list where cnic = %s;"
+        cur.execute(Query, [cnic])
+        data = cur.fetchall()
+        if data:
+            messagebox.showerror('Black Listed', f"This cnic no is black listed due to following reason:-\n {data[0][1]}")
+        cur.close()
+        con.close()    
         return 'CNIC donot exist'
 
 
@@ -848,6 +872,8 @@ class dataentry(tk.Tk):
             self.save_button.config(text='Update')
             self.Add_Ch_button.config(text='Edit Childerns')
             for row in data:
+                self.Record_Date.delete(0, 'end')
+                self.Record_Date.insert(0, row['Dom_date'])
                 self.Entry_CNIC.delete(0, 'end')
                 self.Entry_CNIC.insert(0, row['CNIC'])
                 self.Entry_First_Name.delete(0, 'end')
@@ -901,7 +927,7 @@ class dataentry(tk.Tk):
                 self.Entry_Present_Address.delete(0, 'end')
                 self.Entry_Present_Address.insert(
                     0, row['Present_Address'])
-
+                
                 Tehsil_txt = self.search_dict(
                     self.Tehsils_data_dict, 'ID', row['Perm_Tehsil'], 'Teh_name')
                 District_txt = self.search_dict(
@@ -1041,6 +1067,7 @@ class dataentry(tk.Tk):
         # self.List_Service_Type.selection_clear(0, END)
         # self.List_Pyament_Type.selection_clear(0, END)
         # self.List_Approver.selection_clear(0, END)
+        self.Entry_purpuse.delete(0, 'end')
         self.cnic_front.set(0)
         self.cnic_back.set(0)
         self.cnic_guardian.set(0)
@@ -1261,7 +1288,7 @@ class dataentry(tk.Tk):
                                         Approver_Desig=%s,
                                         Purpuse=%s Where Dom_id = %s;"""
 
-            parm_inputs = [self.Entry_CNIC.get(), f'{datetime.today()}', self.Entry_First_Name.get(), self.Entry_Father_Name.get(), self.Entry_Spouse_Name.get(), self.pre_Tehsil_id, self.pre_District_id, self.pres_Province_id, self.Entry_Present_Address.get(), self.prem_Tehsil_id, self.prem_District_id, self.prem_Province_id, self.Entry_Permenant_Address.get(), self.Entry_Placeofbirth.get(), self.Entry_Contact.get(), self.Entry_Date_of_Birth.get(), self.Entry_Arrival_Date.get(), self.Gender_Id, self.Religion, self.Marital_Status_Id, self.Qualification_Id, self.Occupation_Id, self.Application_Type_Id, self.Request_Type_Id, self.Service_Type_Id, self.Payment_Type_Id, self.cnic_front.get(), self.cnic_back.get(), self.cnic_guardian.get(), self.Residance_Prof.get(), self.utility_bill.get(), self.educational_certificate.get(), self.marriage_registration_certificate.get(), self.form_b.get(), self.domicile_of_guardian.get(), self.noc_from_concerned_district.get(), self.affidavit_domicile.get(), self.affidavit_voterlist.get(), self.voter_list.get(), self.domicile_challan.get(), self.List_Process_Type.get(self.List_Process_Type.curselection()), self.List_Approver.get(self.List_Approver.curselection()), self.Entry_purpuse.get(), self.rec_id]
+            parm_inputs = [self.Entry_CNIC.get(), f'{self.Record_Date.get()}', self.Entry_First_Name.get(), self.Entry_Father_Name.get(), self.Entry_Spouse_Name.get(), self.pre_Tehsil_id, self.pre_District_id, self.pres_Province_id, self.Entry_Present_Address.get(), self.prem_Tehsil_id, self.prem_District_id, self.prem_Province_id, self.Entry_Permenant_Address.get(), self.Entry_Placeofbirth.get(), self.Entry_Contact.get(), self.Entry_Date_of_Birth.get(), self.Entry_Arrival_Date.get(), self.Gender_Id, self.Religion, self.Marital_Status_Id, self.Qualification_Id, self.Occupation_Id, self.Application_Type_Id, self.Request_Type_Id, self.Service_Type_Id, self.Payment_Type_Id, self.cnic_front.get(), self.cnic_back.get(), self.cnic_guardian.get(), self.Residance_Prof.get(), self.utility_bill.get(), self.educational_certificate.get(), self.marriage_registration_certificate.get(), self.form_b.get(), self.domicile_of_guardian.get(), self.noc_from_concerned_district.get(), self.affidavit_domicile.get(), self.affidavit_voterlist.get(), self.voter_list.get(), self.domicile_challan.get(), self.List_Process_Type.get(self.List_Process_Type.curselection()), self.List_Approver.get(self.List_Approver.curselection()), self.Entry_purpuse.get(), self.rec_id]
             self.child_addition_list = []
             self.child_deletion_list = []
             self.child_old_data_list = []
@@ -1278,6 +1305,13 @@ class dataentry(tk.Tk):
                     self.child_addition_list.append(item)
             process = 'Update'
         else:
+            url = f"https://domicile.punjab.gov.pk/AjaxCall.aspx?ID={self.Entry_CNIC.get()}"
+            result = requests.get(url)
+            soup = BeautifulSoup(result.content, 'html.parser')
+            domicile_status = soup.find('span', {'id':'lblStatus'})
+            if domicile_status:
+                if domicile_status.text == 'Issued':
+                    messagebox.showerror('Domicile issued', "Domicile against given cnic is already issued from Punjab")
             dup_check_status = self.check_dup_cnic(
                 cnic=self.Entry_CNIC.get().strip())
 
@@ -1398,6 +1432,7 @@ class dataentry(tk.Tk):
         top_label.pack(fill='x')
         his_list = Listbox(main_frame, height=20, width=80, exportselection=0, font=('Courier', 14))
         his_list.grid(row=0, column=0)
+        print(self.rec_id)
         if self.rec_id is None: 
             pass
         elif self.rec_id ==0:
@@ -1407,12 +1442,13 @@ class dataentry(tk.Tk):
             if type(cur) is str:
                 return messagebox.showerror('Connection Error', 'Unable to Connect to Db')
             
-            Query = "Select h.his_status, h.timestamp from dataentry_history as h Join domicile as d on h.rec_id = d.dom_id where h.rec_id = %s;"
+            Query = "Select h.his_status, h.timestamp from dataentry_history as h Join domicile as d on h.rec_id = d.dom_id where d.dom_id = %s;"
             cur.execute(Query, [self.rec_id])
             data = cur.fetchall()
+            print(data)
             a = 0
             for row in data:
-                his_list.insert(a, f"{row['status']} on {row['timestamp']}")
+                his_list.insert(a, f"{row['his_status']} on {row['timestamp']}")
                 a += 1
             con.close()
             cur.close()

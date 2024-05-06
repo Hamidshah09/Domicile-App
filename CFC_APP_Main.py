@@ -1,16 +1,18 @@
 from tkinter import *
 from tkinter import ttk, messagebox
-from DataEntry_Mysql import dataentry, Collection_Report, Sysentry
+from DataEntry_Mysql import dataentry, Sysentry
+from Monthly_Report import Monthly_Report
 from NOC_Letter import NOC
+from black_list import Black_List
 from Cash_Report import Cash_Report
 from NOC_for_ICT import NOC_ICT
 from Cancellation_Letter import Canelation
 from Verification_Letter import Verification
-from SystemEntry import Auto_entry
+# from SystemEntry import Auto_entry
 from settings import settings
 from splash_screen_gui import splashscreen
 from login import Login_form
-from PIL import ImageTk, Image
+# from PIL import ImageTk, Image
 import json
 import os
 from tools import open_con
@@ -94,9 +96,10 @@ def cash_report():
 
 
 def setting_obj():
-    return messagebox.showinfo('Under Construction', 'Setting Module will be available soon')
-    obj = settings()
-    obj.mainloop()
+    obj = Black_List(obj1.login_data)
+    # return messagebox.showinfo('Under Construction', 'Setting Module will be available soon')
+    # obj = settings()
+    obj.window.mainloop()
 
 
 def imp_exp():
@@ -136,15 +139,15 @@ def export_nitb():
 
 
 def auto_new():
-    obj = Auto_entry()
-    obj.run()
+    obj = Monthly_Report()
+    obj.mainloop()
 
 
 btn = ttk.Button(bottom_frame, text='Domicile\nReports',
                  command=cash_report, width=15)
 btn.grid(row=0, column=1, ipady=10)
 btn1 = ttk.Button(bottom_frame, command=setting_obj,
-                  text='  App   \nSettings', width=15)
+                  text='Black List \n  CNICs', width=15)
 btn1.grid(row=1, column=0, ipady=10, padx=10)
 btn11 = ttk.Button(bottom_frame, command=imp_exp,
                    text='Import Data\nExport Data', width=15)
@@ -174,7 +177,7 @@ btn6 = ttk.Button(bottom_frame, text='Export\nto NITB',
                   width=15, command=export_nitb)
 btn6.grid(row=5, column=2, ipady=10)
 
-btn7 = ttk.Button(bottom_frame, text='  Auto New\nApplication',
+btn7 = ttk.Button(bottom_frame, text='  Monthly Report',
                   width=15, command=auto_new)
 btn7.grid(row=6, column=1, ipady=10)
 

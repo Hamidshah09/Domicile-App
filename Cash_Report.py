@@ -192,7 +192,7 @@ class Cash_Report:
                 my_date_format = date_dict['yyyy'] + '-' + \
                     date_dict['mm'] + '-' + date_dict['dd']
                 Query = "Insert into Cash_Report (Domicile_Date, Applicant_Name, cnic, Application_Type, Duplicate_Entry, Govt_Fee, Payment_Type, Domicile_No, Request_Type) values (%s, %s, %s, %s, %s, %s, %s, %s, %s);"
-                parm_list = [my_date_format, row[1], row[2], app_type, dup_value, Govt_Fee, Payment_Type, row[7][row[7].find('-', 6)+1:], row[6]]
+                parm_list = [my_date_format, row[1], row[2].strip().strip("'"), app_type, dup_value, Govt_Fee, Payment_Type, row[7][row[7].find('-', 6)+1:], row[6]]
                 rec_counter += 1
                 cur.execute(Query, parm_list)
                 print(Query)

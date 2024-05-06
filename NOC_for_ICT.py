@@ -51,7 +51,7 @@ class NOC_ICT(tk.Tk):
         self.letter_date_label.grid(
             column=0, row=0, padx=10, pady=10, sticky=W)
         self.letter_date_entry = ttk.Entry(
-            self.Middle_Frame, width=20, state='readonly', font=self.entry_font)
+            self.Middle_Frame, width=20, font=self.entry_font)
         self.letter_date_entry.grid(
             column=1, row=0, pady=10, sticky=W)
 
@@ -278,6 +278,7 @@ class NOC_ICT(tk.Tk):
             self.cnic_entry.delete('0', 'end')
             self.name_entry.delete('0', 'end')
             self.father_name_entry.delete('0', 'end')
+            self.remarks_entry.delete('0', 'end')
             self.trv.delete(*self.trv.get_children())
             return
         else:
@@ -363,6 +364,7 @@ class NOC_ICT(tk.Tk):
             self.cnic_entry.delete(0, END)
             self.name_entry.delete(0, END)
             self.father_name_entry.delete(0, END)
+            self.remarks_entry.delete(0, END)
             loop = 0
             self.old_child_list = []
             self.cnic_entry.get()
@@ -376,7 +378,7 @@ class NOC_ICT(tk.Tk):
                     self.letter_date_entry.delete(0, END)
                     self.letter_date_entry.insert(
                         0, row['Letter_Date'])
-                    self.letter_date_entry.config(state='readonly')
+                    # self.letter_date_entry.config(state='readonly')
                     self.remarks_entry.delete(0, 'end')
                     self.remarks_entry.insert(0, str(row['Remarks']))
                 if row['App_ID'] is not None:
@@ -605,7 +607,7 @@ class NOC_ICT(tk.Tk):
             pdf.cell(15, 6, text='Subject:', align='L')
             pdf.cell(15, 6, text='')
             pdf.set_font('courier', 'BU', size=14)
-            pdf.multi_cell(0, 6, text='ISSUANCE OF NO OBJECTION CERTIFICATE FOR ICT DOMICILE',
+            pdf.multi_cell(0, 6, text='NON ISSUANCE OF DOMICILE CERTIFICATE',
                            align='L', new_x="LMARGIN", new_y="NEXT")
 
             pdf.set_font('courier', size=14)

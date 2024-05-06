@@ -10,11 +10,6 @@ class Login_form():
         self.root.geometry("800x685+300+0")
         self.root.title("Login")
         self.root.resizable(False, False)
-        # self.root.overrideredirect(True)
-        # width = self.root.winfo_screenwidth()
-        # height = self.root.winfo_screenheight()
-        # # print(width, height, self.root.winfo_rootx(),
-        #       self.root.winfo_screenheight())
         img = Image.open(r'Pictures/back_ground.jpg')
         # img_resize = img.resize((800, 600))
         final_image = ImageTk.PhotoImage(img)
@@ -42,7 +37,7 @@ class Login_form():
         self.user_login_entry = Entry(
             self.main_label, bg='#D2D2D2',  bd=0, font=('Century Gothic', 14))
         self.user_login_entry.place(x=280, y=305)
-        self.user_login_entry.insert(0, 'hamid@admin')
+        
         # self.user_password_label = Label(
         #     self.main_label, text='User password', font=('Century Gothic', 12))
         # self.user_password_label.grid(
@@ -142,6 +137,7 @@ class Login_form():
         retype_new_pass_label.grid(row=4, column=0, padx='20 0', pady=10, sticky='w')
         retype_new_pass_entry = ttk.Entry(change_pass_window, show='*', font=self.btn_font)
         retype_new_pass_entry.grid(row=4, column=1, padx=10, pady=10, sticky='w')
+        
         def update_pass():
             if len(old_pass_entry.get().strip()) == 0 or len(new_pass_entry.get().strip()) == 0 or len(retype_new_pass_entry.get().strip()) == 0:
                 messagebox.showerror('Error', 'Please Provide Old, new and retype-new password')
@@ -150,17 +146,14 @@ class Login_form():
                 if new_pass_entry.get().strip() == retype_new_pass_entry.get().strip():
                     
                     try:
-                        self.con = mysql.connector.connect(host='{}'.format(self.conn_string['host']),
-                                                        database=f"{self.conn_string['database']}",
-                                                        user=f"{self.conn_string['user']}",
-                                                        password=f"{self.conn_string['password']}")
-                        if self.con.is_connected:
-                            self.cur = self.con.cursor(dictionary=True)
-                            self.cur.execute('Update users set user_pass = %s where user_id = %s;', [new_pass_entry.get().strip(), self.login_data['user_id']])
-                            self.con.commit()
+                        con, cur = open_con(True)
+                        if con.is_connected:
+                            cur = con.cursor(dictionary=True)
+                            cur.execute('Update users set user_pass = %s where user_id = %s;', [new_pass_entry.get().strip(), self.login_data['user_id']])
+                            con.commit()
                             self.login_data['user_pass'] = new_pass_entry.get().strip()
-                            self.cur.close()
-                            self.con.close()
+                            cur.close()
+                            con.close()
                             messagebox.showinfo('Password Changed', 'Password Updated')
                             change_pass_window.destroy()
                     except Exception as e:

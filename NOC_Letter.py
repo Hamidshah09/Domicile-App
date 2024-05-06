@@ -330,6 +330,7 @@ class NOC(tk.Tk):
             self.cnic_entry.delete('0', 'end')
             self.name_entry.delete('0', 'end')
             self.father_name_entry.delete('0', 'end')
+            self.remarks_entry.delete('0', 'end')
             self.trv.delete(*self.trv.get_children())
             return
         else:

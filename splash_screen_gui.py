@@ -1,6 +1,9 @@
 # importing library
+from email import message
+import socket
 from tkinter import *
 from tkinter import font
+from tkinter import messagebox
 from PIL import ImageTk, Image
 
 import json
@@ -48,12 +51,24 @@ class splashscreen():
         self.counter = 0
         self.count = 0
         # self.check_server(self.server_2)
-        self.label1.after(1000, self.check_server1)
+        self.label1.after(1000, self.check_network)
         self.label2.after(500, self.animate)
         self.w.mainloop()
-
-    def check_server1(self):
-        self.server_1_status = self.check_server(self.server_1)
+    def get_local_ip(self):
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))
+        local_ip = s.getsockname()[0]
+        s.close()
+        return local_ip
+    def check_network(self):
+        f = open("config.json", "r")
+        j_obj = json.load(f)
+        f.close()
+        local_ip = self.get_local_ip()
+        local_subnet = local_ip.split('.')[2]
+        server_subnet = j_obj['server_1'].split('.')[2]
+        if local_subnet != server_subnet:
+            messagebox.showerror('Network Error', "Your not on server network subnet.\nPlease check your config file") 
 
     def check_server2(self):
         self.server_2_status = self.check_server(self.server_2)

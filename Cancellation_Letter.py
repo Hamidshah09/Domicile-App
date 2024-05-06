@@ -102,6 +102,14 @@ class Canelation():
         self.domicile_date_input = Entry(self.left_frame,  font=self.btn_font)
         self.domicile_date_input.grid(
             row=7, column=2, padx=10, pady=10, sticky=tk.W)
+        
+        self.remarks_label = Label(
+            self.left_frame, text='Remarks', font=self.btn_font)
+        self.remarks_label.grid(
+            row=8, column=1, padx=10, pady=10, sticky=tk.W)
+        self.remarks_input = Entry(self.left_frame,  font=self.btn_font)
+        self.remarks_input.grid(
+            row=8, column=2, padx=10, pady=10, sticky=tk.W)
 
         self.save_btn = Button(self.left_frame, text='Save New',
                                width=15, command=self.save, font=self.btn_font)
@@ -138,7 +146,7 @@ class Canelation():
         self.trv.heading("7", text="Domicile No", anchor='center')
         self.trv.heading("8", text="Domicile Date", anchor='center')
 
-        self.trv.bind("<Button 1>", self.trv_click)
+        self.trv.bind("<<TreeviewSelect>>", self.trv_click)
         self.Search_btn = Button(self.top_frame1, text='Search', command=lambda: self.search(self.filter_type.get(self.filter_type.curselection()), self.filter_input.get(), 'None'),
                                  font=self.btn_font, width=15)
         self.Search_btn.grid(row=1, column=3, padx=10, pady=10)
@@ -260,7 +268,8 @@ class Canelation():
             self.domicile_date_input.delete(0, 'end')
             self.domicile_date_input.insert(
                 0, str(row['Domicile_Date']))
-
+            self.remarks_input.delete(0,'end')
+            self.remarks_input.insert(0, str(row['Remarks']))
         con.close()
 
     def run(self):
@@ -301,8 +310,8 @@ class Canelation():
         # if len(data) > 0:
         #     con.close()
         #     return messagebox.showerror('Error', 'Cancelation Letter already issued against {}'.format(self.cnic_input.get()))
-        Query = "Insert into Cancellation (CNIC, Applicant_Name, Relation, Father_name, Address, Domicile_No, Domicile_Date) values (%s,%s,%s,%s,%s,%s,%s) ;"
-        parm_list = [self.cnic_input.get(), self.name_input.get(), self.relation.get(self.relation.curselection()), self.fathername_input.get(), self.address_input.get(), self.domicile_no_input.get(), self.domicile_date_input.get()]
+        Query = "Insert into Cancellation (CNIC, Applicant_Name, Relation, Father_name, Address, Domicile_No, Domicile_Date, Remarks) values (%s,%s,%s,%s,%s,%s,%s,%s) ;"
+        parm_list = [self.cnic_input.get(), self.name_input.get(), self.relation.get(self.relation.curselection()), self.fathername_input.get(), self.address_input.get(), self.domicile_no_input.get(), self.domicile_date_input.get(), self.remarks_input.get()]
         cur.execute(Query, parm_list)
         con.commit()
         cur.execute('Select last_insert_id();')
@@ -361,8 +370,8 @@ class Canelation():
             if validation_result != 'valid':
                 return messagebox.showerror('Error', validation_result)
         if self.rec_id != 0:
-            Query = "Update Cancellation Set CNIC = %s, Applicant_Name = %s, Father_Name = %s, Relation=%s, Address = %s, Domicile_No = %s, Domicile_Date = %s Where Letter_ID = %s;"
-            parm_list = [self.cnic_input.get(), self.name_input.get(), self.fathername_input.get(), self.relation.get(self.relation.curselection()), self.address_input.get(), self.domicile_no_input.get(), self.domicile_date_input.get(), self.rec_id]
+            Query = "Update Cancellation Set CNIC = %s, Applicant_Name = %s, Father_Name = %s, Relation=%s, Address = %s, Domicile_No = %s, Domicile_Date = %s, Remarks=%s Where Letter_ID = %s;"
+            parm_list = [self.cnic_input.get(), self.name_input.get(), self.fathername_input.get(), self.relation.get(self.relation.curselection()), self.address_input.get(), self.domicile_no_input.get(), self.domicile_date_input.get(), self.remarks_input.get(),self.rec_id]
             con, cur = open_con(False)
             cur.execute(Query, parm_list)
             con.commit()
@@ -377,6 +386,7 @@ class Canelation():
             self.address_input.delete(0, 'end')
             self.domicile_no_input.delete(0, 'end')
             self.domicile_date_input.delete(0, 'end')
+            self.remarks_input.delete('0', 'end')
             self.update_btn.config(state='disabled')
             self.save_btn.config(state='normal')
 

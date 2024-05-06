@@ -114,6 +114,10 @@ class Verification(tk.Tk):
             self.Middle_Frame1, font=self.entry_font)
         self.sender_address_entry2.grid(column=3, row=2, columnspan=4, sticky=W)
 
+        self.sender_address_entry3 = ttk.Entry(
+            self.Middle_Frame1, font=self.entry_font)
+        self.sender_address_entry3.grid(column=4, row=2, columnspan=4, sticky=W)
+
         self.remarks_lable = ttk.Label(
             self.Middle_Frame1, text='Remarks', font=self.label_font)
         self.remarks_lable.grid(
@@ -363,6 +367,8 @@ class Verification(tk.Tk):
                 sender_address = sender_address + ">" + self.sender_address_entry1.get()
             if  len(self.sender_address_entry2.get()) != 0:
                 sender_address = sender_address + ">" + self.sender_address_entry2.get()
+            if  len(self.sender_address_entry3.get()) != 0:
+                sender_address = sender_address + ">" + self.sender_address_entry3.get()
             Query = "Insert Into verification_letters (Letter_Date, Letter_No, Letter_Sent_by, Designation, sender_address, Remarks) values (%s,%s, %s,%s, %s, %s);"
             parm_list = [self.letter_date_entry.get(), self.letter_no_entry.get(), self.sender.get(), self.sender_designation_entry.get(), sender_address, self.remarks_entry.get()]
 
@@ -467,6 +473,9 @@ class Verification(tk.Tk):
         self.letter_date_entry.delete('0', 'end')
         self.sender_designation_entry.delete('0', 'end')
         self.sender_address_entry.delete('0', 'end')
+        self.sender_address_entry1.delete('0', 'end')
+        self.sender_address_entry2.delete('0', 'end')
+        self.sender_address_entry3.delete('0', 'end')
         self.cnic_entry.delete('0', 'end')
         self.name_entry.delete('0', 'end')
         self.father_name_entry.delete('0', 'end')
@@ -505,8 +514,17 @@ class Verification(tk.Tk):
                     self.sender.insert(0, row['Letter_Sent_by'])
                     self.sender_designation_entry.insert(
                         0, str(row['Designation']))
-                    self.sender_address_entry.insert(
-                        0, str(row['sender_address']))
+                    a = 0
+                    for address_item in row['sender_address'].split('>'):
+                        a +=1
+                        if a==1:
+                            self.sender_address_entry.insert(0, str(address_item))
+                        elif a==2:
+                            self.sender_address_entry1.insert(0, str(address_item))
+                        elif a==3:
+                            self.sender_address_entry2.insert(0, str(address_item))
+                        elif a==4:
+                            self.sender_address_entry3.insert(0, str(address_item))
                     self.remarks_entry.insert('0', str(row['Remarks']))
                 if row['App_ID'] is not None:
                     self.trv.insert("", 'end',
@@ -776,7 +794,7 @@ class Verification(tk.Tk):
                     row = table.row(style=table_style)
                     sl += 1
                     row.cell(str(sl))
-                    row.cell(str(data_row["Applicant_Name"]) + " R/o " + str(data_row["address"]))
+                    row.cell(str(data_row["Applicant_Name"]) + " " + str(data_row["Relation"]) + " " + str(data_row["Applicant_FName"]) + " R/o " + str(data_row["address"]))
                     row.cell(str(data_row["Domicile_No"]))
                     row.cell(str(data_row["Domicile_Date"]))
             pdf.ln(4)
