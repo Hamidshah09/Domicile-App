@@ -8,10 +8,11 @@ from Cash_Report import Cash_Report
 from NOC_for_ICT import NOC_ICT
 from Cancellation_Letter import Canelation
 from Verification_Letter import Verification
+from Update_status import Update_Status
 # from SystemEntry import Auto_entry
 from settings import settings
 from splash_screen_gui import splashscreen
-from login import Login_form
+from login import Login
 # from PIL import ImageTk, Image
 import json
 import os
@@ -19,16 +20,17 @@ from tools import open_con
 
 obj = splashscreen()
 obj.run()
-obj1 = Login_form()
-obj1.run()
-if obj1.login_status != "Successfull":
+obj1 = Login()
+obj1.login()
+obj1.root.mainloop()
+if obj1.login_status == False:
     exit()
 window = Tk()
 width_of_window = 610
 screen_width = window.winfo_screenwidth()
 left_cord = (screen_width/2)-(width_of_window/2)
 window.geometry("610x680+{}+50".format(int(left_cord)))
-window.title('CFC APP Verion 1.8')
+window.title('CFC APP Verion 3.5')
 f = open("config.json", "r")
 j_obj = json.load(f)
 f.close()
@@ -71,7 +73,6 @@ style = ttk.Style(window)
 # frame1 = Frame(main_frame, width=15)
 # frame1.grid(row=0, column=0, rowspan=12)
 style.configure("TButton", font=("Courier", 14, 'bold'))
-
 top_label = Label(top_frame, text='CFC App',
                   justify=CENTER, width=50,  font=("Game Of Squids", 32))  # bg='#24304a', foreground='#ffffff',
 top_label.pack(padx=10, pady=10, anchor=E)
@@ -96,25 +97,24 @@ def cash_report():
 
 
 def setting_obj():
-    obj = Black_List(obj1.login_data)
+    obj = Black_List(obj1.user_data)
     # return messagebox.showinfo('Under Construction', 'Setting Module will be available soon')
     # obj = settings()
     obj.window.mainloop()
 
 
 def imp_exp():
-    return messagebox.showinfo('Under Construction', 'Import/Export Module will be available soon')
-    obj = Monthly_Report()
-    obj.mainloop()
+    obj = Update_Status()
+    obj.root.mainloop()
 
 
 def data_obj():
-    obj = dataentry()
+    obj = dataentry(obj1.user_data)
     obj.mainloop()
 
 
 def noc_other():
-    obj = NOC()
+    obj = NOC(obj1.session, obj1.user_data)
     obj.mainloop()
 
 
@@ -124,7 +124,7 @@ def noc_ict():
 
 
 def verification():
-    obj = Verification()
+    obj = Verification(obj1.session)
     obj.mainloop()
 
 
@@ -138,10 +138,14 @@ def export_nitb():
     obj.mainloop()
 
 
-def auto_new():
+def mon_report():
     obj = Monthly_Report()
     obj.mainloop()
 
+def update_passwrod():
+    obj1.change_password(obj1.user_data['user_login'])
+def app_settings():
+    messagebox.showerror('Under construction', 'This part is under construction')
 
 btn = ttk.Button(bottom_frame, text='Domicile\nReports',
                  command=cash_report, width=15)
@@ -150,7 +154,7 @@ btn1 = ttk.Button(bottom_frame, command=setting_obj,
                   text='Black List \n  CNICs', width=15)
 btn1.grid(row=1, column=0, ipady=10, padx=10)
 btn11 = ttk.Button(bottom_frame, command=imp_exp,
-                   text='Import Data\nExport Data', width=15)
+                   text='Update Files Status', width=15)
 btn11.grid(row=1, column=2, ipady=10)
 
 btn1 = ttk.Button(bottom_frame, text=' Domicile\nData Entry',
@@ -178,8 +182,16 @@ btn6 = ttk.Button(bottom_frame, text='Export\nto NITB',
 btn6.grid(row=5, column=2, ipady=10)
 
 btn7 = ttk.Button(bottom_frame, text='  Monthly Report',
-                  width=15, command=auto_new)
+                  width=15, command=mon_report)
 btn7.grid(row=6, column=1, ipady=10)
+
+btn8 = ttk.Button(bottom_frame, text='Change Password',
+                  width=15, command=update_passwrod)
+btn8.grid(row=7, column=0, ipady=10)
+
+btn9 = ttk.Button(bottom_frame, text='Settings',
+                  width=15, command=app_settings)
+btn9.grid(row=7, column=2, ipady=10)
 
 # _status = check_server()
 # if _status == 'Not Connected':

@@ -1,19 +1,20 @@
-import tkinter as tk
-from tkinter import *
-from tkinter import ttk, messagebox
+
+from tkinter import Tk, ttk, messagebox, Listbox, Toplevel, IntVar
 from fpdf import FPDF
 from fpdf.fonts import FontFace
 import os
-from datetime import date
 import Validation
 from tools import open_con
 import json
+from bs4 import BeautifulSoup
+import requests
+from datetime import datetime
+import threading
 
-
-class Verification(tk.Tk):
-    def __init__(self):
+class Verification(Tk):
+    def __init__(self, session):
         super().__init__()
-
+        self.session = session
         self.geometry('1200x800+50+50')
         f = open("config.json", "r")
         self.j_obj = json.load(f)
@@ -43,110 +44,111 @@ class Verification(tk.Tk):
             ''.format(self.j_obj['font_name']), 12), width=60)
         veri_style.configure('Heading.TLabel', font=(
             ''.format(self.j_obj['font_name']), 13, 'bold'))
+        self.checkbutton_var = IntVar()
         self.label_heading_font = (self.j_obj['font_name'], 14, 'bold')
         self.label_font = (self.j_obj['font_name'], 13, 'bold')
         self.entry_font = (self.j_obj['font_name'], 12)
         self.Top_Frame = ttk.Frame(
-            self, relief=RIDGE, border=1)
-        self.Top_Frame.pack(fill=X)
+            self, relief='ridge', border=1)
+        self.Top_Frame.pack(fill='x')
         self.Top_label = ttk.Label(
             self.Top_Frame, text='Verification Letter', border=1, font=self.label_heading_font)
-        self.Top_label.pack(padx=10, pady=10, side=TOP)
+        self.Top_label.pack(padx=10, pady=10, side='top')
         self.Middle_Frame1 = ttk.Frame(
-            self, relief=RIDGE)
-        self.Middle_Frame1.pack(fill=BOTH)
+            self, relief='ridge')
+        self.Middle_Frame1.pack(fill='both')
         self.Middle_Frame = ttk.Frame(
-            self, relief=RIDGE)
-        self.Middle_Frame.pack(fill=BOTH)
+            self, relief='ridge')
+        self.Middle_Frame.pack(fill='both')
         self.Bottom_Frame1 = ttk.Frame(
-            self, relief=RIDGE)
-        self.Bottom_Frame1.pack(fill=BOTH)
+            self, relief='ridge')
+        self.Bottom_Frame1.pack(fill='both')
         self.Bottom_Frame = ttk.Frame(
-            self, relief=RIDGE, border=1)
-        self.Bottom_Frame.pack(fill=X)
-        self.edit_mode = FALSE
-        self.child_edit_mode = FALSE
+            self, relief='ridge', border=1)
+        self.Bottom_Frame.pack(fill='x')
+        self.edit_mode = False
+        self.child_edit_mode = False
         self.old_cnic = ''
 
         self.letter_no_label = ttk.Label(
             self.Middle_Frame1, text='Received Letter No', font=self.label_font)
         self.letter_no_label.grid(
-            column=0, row=0, padx=20, pady=10, sticky=W)
+            column=0, row=0, padx=20, pady=10, sticky='w')
         self.letter_no_entry = ttk.Entry(
             self.Middle_Frame1, font=self.entry_font)
         self.letter_no_entry.grid(
-            column=1, row=0, pady=10, sticky=W)
+            column=1, row=0, pady=10, sticky='w')
 
         self.letter_date_label = ttk.Label(
             self.Middle_Frame1, text='Received Letter/\nApplication Date', font=self.label_font)
         self.letter_date_label.grid(
-            column=2, row=0, padx=20, pady=10, sticky=W)
+            column=2, row=0, padx=20, pady=10, sticky='w')
         self.letter_date_entry = ttk.Entry(
             self.Middle_Frame1, font=self.entry_font)
         self.letter_date_entry.grid(
-            column=3, row=0, pady=10, sticky=W)
+            column=3, row=0, pady=10, sticky='w')
 
         self.letter_to_label = ttk.Label(
             self.Middle_Frame1, text='Reply to', font=self.label_font)
-        self.letter_to_label.grid(column=0, row=1, padx=20, sticky=W)
+        self.letter_to_label.grid(column=0, row=1, padx=20, sticky='w')
         self.sender = ttk.Entry(self.Middle_Frame1, font=self.entry_font)
-        self.sender.grid(column=1, row=1, sticky=W)
+        self.sender.grid(column=1, row=1, sticky='w')
         self.sender_designation_lable = ttk.Label(
             self.Middle_Frame1, text='Designation', font=self.label_font)
-        self.sender_designation_lable.grid(column=2, row=1, padx=20, sticky=W)
+        self.sender_designation_lable.grid(column=2, row=1, padx=20, sticky='w')
         self.sender_designation_entry = ttk.Entry(
             self.Middle_Frame1, font=self.entry_font)
-        self.sender_designation_entry.grid(column=3, row=1, sticky=W)
+        self.sender_designation_entry.grid(column=3, row=1, sticky='w')
 
         self.sender_address_lable = ttk.Label(
             self.Middle_Frame1, text='Sender Address', font=self.label_font)
         self.sender_address_lable.grid(
-            column=0, row=2, padx=20, pady=20, sticky=W)
+            column=0, row=2, padx=20, pady=20, sticky='w')
         self.sender_address_entry = ttk.Entry(
             self.Middle_Frame1, font=self.entry_font)
-        self.sender_address_entry.grid(column=1, row=2, columnspan=4, sticky=W)
+        self.sender_address_entry.grid(column=1, row=2, columnspan=4, sticky='w')
 
         self.sender_address_entry1 = ttk.Entry(
             self.Middle_Frame1, font=self.entry_font)
-        self.sender_address_entry1.grid(column=2, row=2, columnspan=4, sticky=W)
+        self.sender_address_entry1.grid(column=2, row=2, columnspan=4, sticky='w')
 
         self.sender_address_entry2 = ttk.Entry(
             self.Middle_Frame1, font=self.entry_font)
-        self.sender_address_entry2.grid(column=3, row=2, columnspan=4, sticky=W)
+        self.sender_address_entry2.grid(column=3, row=2, columnspan=4, sticky='w')
 
         self.sender_address_entry3 = ttk.Entry(
             self.Middle_Frame1, font=self.entry_font)
-        self.sender_address_entry3.grid(column=4, row=2, columnspan=4, sticky=W)
+        self.sender_address_entry3.grid(column=4, row=2, columnspan=4, sticky='w')
 
         self.remarks_lable = ttk.Label(
             self.Middle_Frame1, text='Remarks', font=self.label_font)
         self.remarks_lable.grid(
-            column=0, row=3, padx=20, pady=5, sticky=W)
+            column=0, row=3, padx=20, pady=5, sticky='w')
         self.remarks_entry = ttk.Entry(
             self.Middle_Frame1, font=self.entry_font, width=60)
-        self.remarks_entry.grid(column=1, row=3, columnspan=4, pady=5, sticky=W)
+        self.remarks_entry.grid(column=1, row=3, columnspan=4, pady=5, sticky='w')
 
         self.cnic_label = ttk.Label(
             self.Middle_Frame, text='CNIC', font=self.label_font)
-        self.cnic_label.grid(column=0, row=0, padx=20, pady=20, sticky=W)
+        self.cnic_label.grid(column=0, row=0, padx=20, pady=20, sticky='w')
         self.name_label = ttk.Label(
             self.Middle_Frame, text='Domicile Holder Name', font=self.label_font)
-        self.name_label.grid(column=2, row=0, padx=20, sticky=W)
+        self.name_label.grid(column=2, row=0, padx=20, sticky='w')
         self.relation_label = ttk.Label(
             self.Middle_Frame, text='Relation', font=self.label_font)
-        self.relation_label.grid(column=0, row=1, padx=20, sticky=W)
+        self.relation_label.grid(column=0, row=1, padx=20, sticky='w')
         
         self.father_name_label = ttk.Label(
             self.Middle_Frame, text='Father/Husband Name', font=self.label_font)
-        self.father_name_label.grid(column=2, row=1, padx=20, sticky=W)
+        self.father_name_label.grid(column=2, row=1, padx=20, sticky='w')
         self.cnic_entry = ttk.Entry(self.Middle_Frame, font=self.entry_font)
-        self.cnic_entry.grid(column=1, row=0, pady=20, sticky=W)
-        self.cnic_entry.bind('<Tab>', self.check_already_issued)
+        self.cnic_entry.grid(column=1, row=0, pady=20, sticky='w')
+        self.cnic_entry.bind('<Tab>', lambda event: [self.check_already_issued(), self.fetch_rec()])
         self.name_entry = ttk.Entry(self.Middle_Frame)
-        self.name_entry.grid(column=3, row=0, sticky=W)
+        self.name_entry.grid(column=3, row=0, sticky='w')
         self.relation = Listbox(
-            self.Middle_Frame, width=20, height=1, selectmode=SINGLE, exportselection=0, font=self.entry_font)
-        self.relation.grid(column=1, row=1, pady=10, sticky=W)
+            self.Middle_Frame, width=20, height=1, selectmode='single', exportselection=0, font=self.entry_font)
+        self.relation.grid(column=1, row=1, pady=10, sticky='w')
         self.relation.insert(0, 's/o')
         self.relation.insert(1, 'd/o')
         self.relation.insert(2, 'w/o')
@@ -155,34 +157,34 @@ class Verification(tk.Tk):
             self.Middle_Frame, font=self.entry_font)
         self.father_name_entry.bind('<Return>', self.add)
         self.father_name_entry.grid(
-            column=3, row=1, pady=10, sticky=W)
+            column=3, row=1, pady=10, sticky='w')
         self.address_label = ttk.Label(
             self.Middle_Frame, text='Address', font=self.label_font)
-        self.address_label.grid(column=0, row=3, padx=20, pady=10, sticky=W)
+        self.address_label.grid(column=0, row=3, padx=20, pady=10, sticky='w')
         self.address_entry = ttk.Entry(
             self.Middle_Frame, width=63, font=self.entry_font)
         self.address_entry.grid(
-            column=1, row=3, columnspan=4, pady=10, sticky=W)
+            column=1, row=3, columnspan=4, pady=10, sticky='w')
 
         self.domicile_label = ttk.Label(
             self.Middle_Frame, text='Domicile No', font=self.label_font)
-        self.domicile_label.grid(column=0, row=4, padx=20, pady=10, sticky=W)
+        self.domicile_label.grid(column=0, row=4, padx=20, pady=10, sticky='w')
         self.domicile_entry = ttk.Entry(
             self.Middle_Frame, width=20, font=self.entry_font)
-        self.domicile_entry.grid(column=1, row=4, pady=10, sticky=W)
+        self.domicile_entry.grid(column=1, row=4, pady=10, sticky='w')
 
         self.domicile_date_label = ttk.Label(
             self.Middle_Frame, text='Domicile Date', font=self.label_font)
         self.domicile_date_label.grid(
-            column=2, row=4, padx=20, pady=10, sticky=W)
+            column=2, row=4, padx=20, pady=10, sticky='w')
         self.domicile_date_entry = ttk.Entry(
             self.Middle_Frame, width=20, font=self.entry_font)
         self.domicile_date_entry.grid(
-            column=3, row=4, pady=10, sticky=W)
+            column=3, row=4, pady=10, sticky='w')
 
         self.trv = ttk.Treeview(
             self.Bottom_Frame1, height=7, selectmode='browse', style='Treeview')
-        self.trv.pack(fill=X)
+        self.trv.pack(fill='x')
         self.trv.bind("<Button-1>", self.self_trv_click)
         self.trv.bind('<Return>', self.self_trv_click)
         self.trv["columns"] = ("1", "2", "3", "4", "5", "6", "7", "8")
@@ -223,22 +225,81 @@ class Verification(tk.Tk):
         self.exit_Btn = ttk.Button(self.Bottom_Frame, text='Exit',
                                    command=self.destroy, width=15)
         self.exit_Btn.grid(column=5, row=1, padx=10, pady=10)
+    def fetch_rec(self, event):
+        if len(self.cnic_entry.get().strip()) != 13:
+            return
+        try:
+            responce = self.session.get(f'https://admin-icta.nitb.gov.pk/domicile/applications?keyword={self.cnic_entry.get()}&from=&to=&status=')
+            if responce.url == 'https://admin-icta.nitb.gov.pk/login':
+                messagebox.showerror('Session Expired', 'Your NITB Session is expired. Please relogin to create new session')
+                return
+        except Exception as e:
+            messagebox.showerror('Error', e)
+            return
+        soup = BeautifulSoup(responce.content, 'html.parser')
+        notfound = soup.find('div', class_ = 'alert alert-info alert-dismissable fade show has-icon')
+        if notfound is None:
+            for links in soup.find_all('a', href=True, class_='dropdown-item'):
+                data_link = links['href']
+            details_page = self.session.get(data_link)
+            soup = BeautifulSoup(details_page.content, 'html.parser')
+            data_dict = {}
+            address = False
+            for row in soup.find_all('div', class_='row mb-2'):
+                if row.text.find(':') != -1:
+                    if row.text[:13].strip() == 'Payment Paid':
+                        pass
+                    else:
+                        attrib, val = row.text.split(":")
+                        if row.text[:8].strip() == 'Address':
+                            data_dict[attrib.strip()] = val.strip()
+                            address = True
+                        if address == True:
+                            address = False
+                            pass
+                        else:
+                            data_dict[attrib.strip()] = val.strip()
+            self.name_entry.delete(0, 'end')
+            self.name_entry.insert(0, data_dict['Name'])
+            self.father_name_entry.delete(0, 'end')
+            self.father_name_entry.insert(0, data_dict['Father/Husband Name'])
+            self.address_entry.delete(0, 'end')
+            self.address_entry.insert(0, data_dict['Address'])
+            self.domicile_entry.delete(0, 'end')
+            self.domicile_entry.insert(0, data_dict['Application Number'])
+            self.domicile_date_entry.delete(0, 'end')
+            self.domicile_date_entry.insert(0, data_dict['Payment Due Date'])
+    def create_session(self):
+        self.session = requests.session()
+        url = f'https://admin-icta.nitb.gov.pk/login'
+        try:
+            page = self.session.get(url)
+        except Exception as e:
+            messagebox.showerror('Connection Error', e)
+            return
+        soup = BeautifulSoup(page.content, 'html')
+        for links in soup.find_all('input', type='hidden'):
+            _token = links.attrs['value']
+            break
+        payload = {'_token':_token, 'email':'hamidshah09@gmail.com', 'password':'2891dimah', 'submit':'login'}
+        try:
+            responce = self.session.post(url, data=payload)
+        except Exception as e:
+            messagebox.showerror('Authentication Error', e)
+            return
+        if responce.status_code == 200:
+            self.session_status = True
+        else:
+            self.session_status = False    
 
-    
     def check_already_issued(self, *args):
         con, cur = open_con(False)
         cnic = self.cnic_entry.get().strip()
-        Query = "Select cnic from Cash_Report Where Trim(cnic) = %s;"
+        Query = "Select CNIC from verification_applicants Where CNIC = %s;"
         cur.execute(Query, [cnic])
         data = cur.fetchall()
-        if len(data) == 0:
-            messagebox.showerror(
-                'Error', "Record not exist")
-        Query = "Select CNIC from verification_applicants Where CNIC = %s;"
-        cur.execute(Query, [self.cnic_entry.get()])
-        data = cur.fetchall()
-        if len(data) != 0:
-            print(data)
+        print(data)
+        if data:
             messagebox.showerror(
                 'Error', "Verificatin Letter already issued to this applicant")
             con.close()
@@ -271,7 +332,7 @@ class Verification(tk.Tk):
                 self.domicile_date_entry.get())
             if validation_result != 'valid':
                 return messagebox.showerror('Error', validation_result)
-        if self.child_edit_mode == FALSE:
+        if self.child_edit_mode == False:
             for line in self.trv.get_children():
                 if str(self.trv.item(line)['values'][1]) == self.cnic_entry.get():
                     return messagebox.showerror('Error', 'CNIC Already exist')
@@ -298,14 +359,14 @@ class Verification(tk.Tk):
             self.domicile_entry.delete('0', 'end')
             self.domicile_date_entry.delete('0', 'end')
             self.trv.item(selectedItem, text='', values=val_tpl)
-            self.child_edit_mode = FALSE
+            self.child_edit_mode = False
             self.Add_Btn.config(text='Add Applicant')
 
     def self_trv_click(self, *args):
 
         if len(self.trv.selection()) == 0:
             return
-        self.child_edit_mode = TRUE
+        self.child_edit_mode = True
         self.Add_Btn.config(text='Update Child')
 
         selectedItem = self.trv.selection()[0]
@@ -337,15 +398,16 @@ class Verification(tk.Tk):
     def del_child(self):
         self.trv.delete(self.trv.selection())
         self.clear_form()
-        self.child_edit_mode = FALSE
+        self.child_edit_mode = False
         self.Add_Btn.config(text='Add Applicant')
 
     def Save_data(self):
         if len(self.letter_date_entry.get()) != 0:
-            validation_result = Validation.validate_date(
-                self.letter_date_entry.get())
-            if validation_result != 'valid':
-                return messagebox.showerror('Error', validation_result)
+            try:
+                letter_date = datetime.strptime(self.letter_date_entry.get(), "%Y-%m-%d").date()
+            except ValueError:
+                messagebox.showerror('Date Format Error', 'Please Provide date in yyyy-mm-dd')
+                return
         else:
             return messagebox.showerror('Error', 'Please Provide Letter Date')
         if len(self.letter_no_entry.get()) == 0:
@@ -355,7 +417,7 @@ class Verification(tk.Tk):
         if len(self.sender_designation_entry.get()) == 0:
             return messagebox.showerror('Error', 'Please Provide Letter Sender Designation')
 
-        if self.edit_mode == FALSE:
+        if self.edit_mode == False:
             self.data_list = []
 
             for line in self.trv.get_children():
@@ -370,7 +432,7 @@ class Verification(tk.Tk):
             if  len(self.sender_address_entry3.get()) != 0:
                 sender_address = sender_address + ">" + self.sender_address_entry3.get()
             Query = "Insert Into verification_letters (Letter_Date, Letter_No, Letter_Sent_by, Designation, sender_address, Remarks) values (%s,%s, %s,%s, %s, %s);"
-            parm_list = [self.letter_date_entry.get(), self.letter_no_entry.get(), self.sender.get(), self.sender_designation_entry.get(), sender_address, self.remarks_entry.get()]
+            parm_list = [letter_date, self.letter_no_entry.get(), self.sender.get(), self.sender_designation_entry.get(), sender_address, self.remarks_entry.get()]
 
             con, cur = open_con(False)
             cur.execute(Query, parm_list)
@@ -405,7 +467,7 @@ class Verification(tk.Tk):
             self.clear_form()
             return
         else:
-            if self.letter_id == 0:
+            if self.letter_id['letter_id'] == 0:
                 return messagebox.showerror('Error', 'No Record ID to Update')
             self.updated_data_list = []
             for line in self.trv.get_children():
@@ -432,9 +494,16 @@ class Verification(tk.Tk):
             print("Addition List:-", self.addition_list)
             print("Updation List:-", self.updation_list)
             print("Deletion List:-", self.deletion_list)
+            sender_address = self.sender_address_entry.get()
+            if  len(self.sender_address_entry1.get()) != 0:
+                sender_address = sender_address + ">" + self.sender_address_entry1.get()
+            if  len(self.sender_address_entry2.get()) != 0:
+                sender_address = sender_address + ">" + self.sender_address_entry2.get()
+            if  len(self.sender_address_entry3.get()) != 0:
+                sender_address = sender_address + ">" + self.sender_address_entry3.get()
             con, cur = open_con(False)
             Query = "Update verification_letters Set Letter_Date=%s, Letter_No=%s, Letter_Sent_by = %s, Designation=%s, sender_address=%s , Remarks=%s Where Letter_ID = %s;"
-            parm_list = [self.letter_date_entry.get(), self.letter_no_entry.get(), self.sender.get(), self.sender_designation_entry.get(), self.sender_address_entry.get(), self.remarks_entry.get(), self.letter_id]
+            parm_list = [self.letter_date_entry.get(), self.letter_no_entry.get(), self.sender.get(), self.sender_designation_entry.get(), sender_address, self.remarks_entry.get(), self.letter_id['letter_id']]
             cur.execute(Query, parm_list)
             con.commit()
             if len(self.updation_list) != 0:
@@ -447,7 +516,7 @@ class Verification(tk.Tk):
             if len(self.addition_list) != 0:
                 for row in self.addition_list:
                     Query = "Insert Into verification_Applicants (Letter_ID,CNIC,Applicant_Name,Relation,Applicant_FName, address, Domicile_No, Domicile_Date) values (%s,%s,%s, %s,%s,%s,%s,%s);"
-                    parm_list=[self.letter_id, str(row[1]), row[2], row[3], row[4], row[7], row[5], row[6]]
+                    parm_list=[self.letter_id['letter_id'], str(row[1]), row[2], row[3], row[4], row[7], row[5], row[6]]
                     cur.execute(Query, parm_list)
                     con.commit()
             if len(self.deletion_list) != 0:
@@ -457,14 +526,14 @@ class Verification(tk.Tk):
                     con.commit()
             messagebox.showinfo('Success', "Record Updated")
             con.close()
-            self.edit_mode = FALSE
+            self.edit_mode = False
             self.save_Btn.config(text='Save Record')
-            self.child_edit_mode = FALSE
+            self.child_edit_mode = False
             self.Add_Btn.config(text='Add Applicant')
             self.addition_list = []
             self.deletion_list = []
             self.trv.delete(*self.trv.get_children())
-            self.letter_id = 0
+            self.letter_id = {'letter_id':0, 'reply_type':'official'}
             self.clear_form()
 
     def clear_form(self):
@@ -487,7 +556,7 @@ class Verification(tk.Tk):
 
     def load_data(self):
 
-        if self.letter_id != 0:
+        if self.letter_id['letter_id'] != 0:
             Query = """SELECT l.Letter_ID, d.Dispatch_No, l.Letter_Date, l.Letter_No, l.Letter_Sent_by, l.Designation, l.sender_address, l.Remarks,
                             a.App_ID, a.CNIC, a.Applicant_Name, a.Relation, a.Applicant_FName, a.Domicile_No, a.Domicile_Date, a.address
                             FROM verification_letters as l 
@@ -497,7 +566,7 @@ class Verification(tk.Tk):
                             on d.Letter_ID = l.Letter_ID
                             Where l.Letter_ID = %s And d.Letter_Type = 'Verification Letter';"""
             con, cur = open_con(True)
-            cur.execute(Query, [self.letter_id])
+            cur.execute(Query, [self.letter_id['letter_id']])
             data = cur.fetchall()
             con.close()
             self.clear_form()
@@ -533,7 +602,7 @@ class Verification(tk.Tk):
                     #     row['Relation']), "{}".format(row['Applicant_FName']), "{}".format(row['Applicant_FName'])))
                     self.old_child_list.append(row['App_ID'])
 
-                self.edit_mode = TRUE
+                self.edit_mode = True
                 self.save_Btn.config(text='Update Record')
         else:
             print('Record ID Not available')
@@ -617,7 +686,7 @@ class Verification(tk.Tk):
                 lett_id = row['Letter_ID']
 
         def cancel():
-            self.letter_id = 0
+            self.letter_id = {'letter_id':0, 'reply_type':'personal'}
             self.edit_window.quit()
             self.edit_window.destroy()
 
@@ -631,16 +700,19 @@ class Verification(tk.Tk):
             self.address_entry.delete('0', 'end')
             self.domicile_entry.delete('0', 'end')
             self.domicile_date_entry.delete('0', 'end')
-            self.letter_id = trv.item(selectedItem)['values'][0]
+            if self.checkbutton_var.get() == 1:
+                self.letter_id = {'letter_id':trv.item(selectedItem)['values'][0], 'reply_type':'personal'}
+            else:
+                self.letter_id = {'letter_id':trv.item(selectedItem)['values'][0], 'reply_type':'official'}                
             self.edit_window.quit()
             self.edit_window.destroy()
 
-        self.letter_id = 0
+        self.letter_id = {'letter_id':0, 'reply_type':'official'}
         self.edit_window = Toplevel()
-        self.edit_window.geometry("800x400")
+        self.edit_window.geometry("1000x400")
         self.edit_window.title('Record Selection')
-        Top_Frame = Frame(self.edit_window)
-        Top_Frame.pack(fill=X)
+        Top_Frame = ttk.Frame(self.edit_window)
+        Top_Frame.pack(fill='x')
         search_type = Listbox(
             Top_Frame, width=15, height=1, exportselection=0)
         search_type.grid(row=1, column=0, padx=10, pady=10)
@@ -649,13 +721,13 @@ class Verification(tk.Tk):
         search_type.insert(2, "CNIC")
         search_type.select_set(0)
         search_type.see(0)
-        search_input = Entry(Top_Frame, width=15, font=self.label_font)
+        search_input = ttk.Entry(Top_Frame, width=15, font=self.label_font)
         search_input.grid(row=1, column=1, padx=10, pady=10)
         search_input.bind('<Return>', Search)
-        Bottom_Frame = Frame(self.edit_window)
-        Bottom_Frame.pack(fill=X, expand=1)
+        Bottom_Frame = ttk.Frame(self.edit_window)
+        Bottom_Frame.pack(fill='x', expand=1)
         trv = ttk.Treeview(Bottom_Frame, selectmode='browse', height=15)
-        trv.pack(fill=BOTH, expand=TRUE, padx=10, pady=10)
+        trv.pack(fill='both', expand=True, padx=10, pady=10)
         trv["columns"] = ("1", "2", "3", "4", "5", "6")
         trv['show'] = 'headings'
         trv.column("1", width=50, anchor='w')
@@ -673,13 +745,14 @@ class Verification(tk.Tk):
         trv.heading("6", text="Applicant Name", anchor='w')
         trv.bind("<Double-1>", trv_click)
 
-        search_btn = Button(Top_Frame, width=15,
-                            text='Search', command=Search, font=self.label_font)
+        search_btn = ttk.Button(Top_Frame, width=15,
+                            text='Search', command=Search)
         search_btn.grid(row=1, column=3)
-        cancel_btn = Button(Top_Frame, width=15, text='Cancel',
-                            font=self.label_font, command=cancel)
+        cancel_btn = ttk.Button(Top_Frame, width=15, text='Cancel', command=cancel)
         cancel_btn.grid(row=1, column=4, padx=10, pady=10)
-
+        self.reply_type = ttk.Checkbutton(Top_Frame, text = "Reply to applicant", variable = self.checkbutton_var,
+                onvalue = 1, offvalue = 0)
+        self.reply_type.grid(row=1, column=5, padx=10, pady=10)
         start_up()
         self.edit_window.mainloop()
 
@@ -690,14 +763,14 @@ class Verification(tk.Tk):
 
         for itm in range(event.widget.size()):
             if event.keysym.upper() == event.widget.get(itm)[:1]:
-                event.widget.selection_clear(0, END)
+                event.widget.selection_clear(0, 'end')
                 event.widget.select_set(itm)
                 event.widget.see(itm)
                 event.widget.activate(itm)
                 break
     def issue_letter(self):
         self.Record_Selector()
-        if self.letter_id == 0:
+        if self.letter_id['letter_id'] == 0:
             return messagebox.showerror('Error', 'Nothing Selected')
 
         Query = """SELECT l.timestamp, l.Letter_ID, d.Dispatch_No, l.Letter_No, l.Letter_Date, l.Letter_Sent_by, l.Designation, l.sender_address, 
@@ -709,7 +782,7 @@ class Verification(tk.Tk):
                     on d.Letter_ID = l.Letter_ID
                     Where l.Letter_ID = %s And d.Letter_Type = 'Verification Letter';"""
         con, cur = open_con(True)
-        cur.execute(Query, [self.letter_id])
+        cur.execute(Query, [self.letter_id['letter_id']])
         data = cur.fetchall()
         if len(data) != 0:
 
@@ -746,10 +819,10 @@ class Verification(tk.Tk):
             pdf.cell(10, 6, text='')
             pdf.cell(20, 6, text='To:', align='L')
             pdf.cell(10, 6, text='')
-            pdf.cell(0, 6, text='{}'.format(
+            pdf.cell(0, 6, text='{},'.format(
                 data[0]['Letter_Sent_by']), align='L', new_x="LMARGIN", new_y="NEXT")
             pdf.cell(40, 6, text='')
-            pdf.cell(0, 6, text='{}'.format(
+            pdf.cell(0, 6, text='{},'.format(
                 data[0]['Designation']), align='L', new_x="LMARGIN", new_y="NEXT")
             for address in data[0]['sender_address'].split(">"):
                 pdf.cell(40, 6, text='')
@@ -773,9 +846,13 @@ class Verification(tk.Tk):
                      new_x="LMARGIN", new_y="NEXT", align='L')
 
             pdf.set_font('courier', size=14)
-            
+            #Letter No. {}
+            if self.letter_id['reply_type'] == 'official':
+                starter_text = '         Kindly refer to your office Letter No {}, Dated {}, on the subject noted above.'.format(data[0]['Letter_No'], data[0]['Letter_Date'].strftime('%d-%m-%Y'))
+            else:
+                starter_text = '         Kindly refer to your application, Dated {}, on the subject noted above.'.format(data[0]['Letter_Date'].strftime('%d-%m-%Y'))
             pdf.multi_cell(
-                0, 10, text='    Kindly refer to your office Letter No. {}, Dated {} on the subject noted above.'.format(data[0]['Letter_No'], data[0]['Letter_Date']), new_x="LMARGIN", new_y="NEXT")
+                0, 10, text=starter_text, new_x="LMARGIN", new_y="NEXT")
             pdf.multi_cell(0, 10, text='2.      The record reveals that the following domicile certificate has been issued by this office:-')
             
             pdf.ln(4)
@@ -799,6 +876,7 @@ class Verification(tk.Tk):
                     row.cell(str(data_row["Domicile_Date"]))
             pdf.ln(4)
             pdf.ln(8)
+            pdf.ln(8)
             # signature
             pdf.set_font('courier', 'B', size=14)
             pdf.cell(70, 6, text='')
@@ -815,7 +893,7 @@ class Verification(tk.Tk):
     def select_keysym_value(self, event):
         for itm in range(event.widget.size()):
             if event.keysym.lower() == event.widget.get(itm)[:1]:
-                event.widget.selection_clear(0, END)
+                event.widget.selection_clear(0, 'end')
                 event.widget.select_set(itm)
                 event.widget.see(itm)
                 event.widget.activate(itm)

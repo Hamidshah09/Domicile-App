@@ -1,18 +1,22 @@
-import tkinter as tk
-from tkinter import *
-from tkinter import ttk, messagebox
+from ast import List
+from tkinter import Toplevel, ttk, messagebox, Tk, Listbox, Variable
+from turtle import mode
+from bs4 import BeautifulSoup
 from fpdf import FPDF
 import os
 import Validation
 from tools import open_con
 from fpdf.fonts import FontFace
 
-class NOC(tk.Tk):
-    def __init__(self):
+class NOC(Tk):
+    def __init__(self, session, user_data):
         super().__init__()
-
         self.geometry('1000x750+50+50')
         self.title('NOC to Other Districts')
+        self.session = session
+        self.user_data = user_data
+        self.letter_font = 'Courier'
+        self.letter_font_size = 12
         # self.tk.call('lappend', 'auto_path',
         #              r'C:\Users\Hamid Shah\Desktop\newtheam\awthemes-10.4.0')
         # self.tk.call('package', 'require', 'awarc')
@@ -21,89 +25,89 @@ class NOC(tk.Tk):
         self.tk.call("source", "azure.tcl")
         self.tk.call("set_theme", "light")
         noc_style = ttk.Style(self)
-        noc_style.configure('Treeview', font=('Courier', 14))
-        noc_style.configure("Treeview.Heading", font=('Courier', 14, 'bold'))
-        noc_style.configure('TButton', font=('Courier', 14, 'bold'))
-        noc_style.configure('TLabel', font=('Courier', 14))
-        noc_style.configure('TEntry', font=('Courier', 14), width=40)
-        noc_style.configure('Heading.TLabel', font=('Courier', 14, 'bold'))
+        noc_style.configure('Treeview', font=(self.letter_font, 14))
+        noc_style.configure("Treeview.Heading", font=(self.letter_font, 14, 'bold'))
+        noc_style.configure('TButton', font=(self.letter_font, 14, 'bold'))
+        noc_style.configure('TLabel', font=(self.letter_font, 14))
+        noc_style.configure('TEntry', font=(self.letter_font, 14), width=40)
+        noc_style.configure('Heading.TLabel', font=(self.letter_font, 14, 'bold'))
         self.Top_Frame = ttk.Frame(
-            self, relief=RIDGE, border=1)
-        self.Top_Frame.pack(fill=X)
+            self, relief='ridge', border=1)
+        self.Top_Frame.pack(fill='x')
         self.Top_label = ttk.Label(
-            self.Top_Frame, text='NOC to Other Districts', border=1, font=('Courier', 18, 'bold'))
-        self.Top_label.pack(padx=10, pady=10, side=TOP)
+            self.Top_Frame, text='NOC to Other Districts', border=1, font=(self.letter_font, 18, 'bold'))
+        self.Top_label.pack(padx=10, pady=10, side='top')
         self.Middle_Frame = ttk.Frame(
-            self, relief=RIDGE, border=1, height=10)
-        self.Middle_Frame.pack(fill=BOTH, expand=YES)
+            self, relief='ridge', border=1, height=10)
+        self.Middle_Frame.pack(fill='both', expand=1)
         self.Bottom_Frame = ttk.Frame(
-            self, relief=RIDGE, border=1, height=10)
-        self.Bottom_Frame.pack(fill=X)
-        self.edit_mode = FALSE
-        self.child_edit_mode = FALSE
+            self, relief='ridge', border=1, height=10)
+        self.Bottom_Frame.pack(fill='x')
+        self.edit_mode = False
+        self.child_edit_mode = False
         self.old_cnic = ''
         self.letter_date_label = ttk.Label(
-            self.Middle_Frame, text='NOC Issuance Date', font=('Courier', 14, 'bold'))
+            self.Middle_Frame, text='NOC Issuance Date', font=(self.letter_font, 14, 'bold'))
         self.letter_date_label.grid(
-            column=0, row=1, padx=10, pady=10, sticky=W)
+            column=0, row=1, padx=10, pady=10, sticky='w')
         self.letter_date_entry = ttk.Entry(
-            self.Middle_Frame, state='readonly', font=('Courier', 14))
+            self.Middle_Frame, state='readonly', font=(self.letter_font, 14))
         self.letter_date_entry.grid(
-            column=1, row=1, pady=10, sticky=W)
+            column=1, row=1, pady=10, sticky='w')
 
         self.letter_to_label = ttk.Label(
-            self.Middle_Frame, text='NOC Issued To', font=('Courier', 14, 'bold'))
-        self.letter_to_label.grid(column=2, row=1, padx=10, pady=10, sticky=W)
+            self.Middle_Frame, text='NOC Issued To', font=(self.letter_font, 14, 'bold'))
+        self.letter_to_label.grid(column=2, row=1, padx=10, pady=10, sticky='w')
         # self.letter_to_1 = Label(
         #     self.Middle_Frame, width=20, text='Deputy Commissioner/', font=('Bell', 12, 'bold'))
-        # self.letter_to_1.grid(column=1, row=2, pady=10, sticky=W)
+        # self.letter_to_1.grid(column=1, row=2, pady=10, sticky='w')
         # self.letter_to_2 = Label(
         #     self.Middle_Frame, width=20, text='Assistant Commissioner', font=('Bell', 12, 'bold'))
-        # self.letter_to_2.grid(column=1, row=3, sticky=W)
+        # self.letter_to_2.grid(column=1, row=3, sticky='w')
         self.Districts = ttk.Entry(
-            self.Middle_Frame, font=('Courier', 14,))
+            self.Middle_Frame, font=(self.letter_font, 14,))
 
-        self.Districts.grid(column=3, pady=10, row=1, sticky=W)
+        self.Districts.grid(column=3, pady=10, row=1, sticky='w')
         self.Districts.bind('<KeyRelease>', self.list_search)
         self.cnic_label = ttk.Label(
-            self.Middle_Frame, text='CNIC', font=('Courier', 14, 'bold'))
-        self.cnic_label.grid(column=0, row=2, padx=20, pady=10, sticky=W)
+            self.Middle_Frame, text='CNIC', font=(self.letter_font, 14, 'bold'))
+        self.cnic_label.grid(column=0, row=2, padx=20, pady=10, sticky='w')
         self.name_label = ttk.Label(
-            self.Middle_Frame, text='Name', font=('Courier', 14, 'bold'))
-        self.name_label.grid(column=2, row=2, padx=20, sticky=W)
+            self.Middle_Frame, text='Name', font=(self.letter_font, 14, 'bold'))
+        self.name_label.grid(column=2, row=2, padx=20, sticky='w')
         self.relation_label = ttk.Label(
-            self.Middle_Frame, text='Relation', font=('Courier', 14, 'bold'))
-        self.relation_label.grid(column=0, row=3, padx=20, sticky=W)
+            self.Middle_Frame, text='Relation', font=(self.letter_font, 14, 'bold'))
+        self.relation_label.grid(column=0, row=3, padx=20, sticky='w')
         self.father_name_label = ttk.Label(
-            self.Middle_Frame, text='Father Name', font=('Courier', 14, 'bold'))
-        self.father_name_label.grid(column=2, row=3, padx=20, sticky=W)
+            self.Middle_Frame, text='Father Name', font=(self.letter_font, 14, 'bold'))
+        self.father_name_label.grid(column=2, row=3, padx=20, sticky='w')
         self.cnic_entry = ttk.Entry(
-            self.Middle_Frame, font=('Courier', 14, 'bold'))
-        self.cnic_entry.grid(column=1, row=2, pady=10, sticky=W)
+            self.Middle_Frame, font=(self.letter_font, 14, 'bold'))
+        self.cnic_entry.grid(column=1, row=2, pady=10, sticky='w')
         self.cnic_entry.bind('<Tab>', self.check_already_issued)
-        self.name_entry = ttk.Entry(self.Middle_Frame, font=('Courier', 14))
-        self.name_entry.grid(column=3, row=2, pady=10, sticky=W)
+        self.name_entry = ttk.Entry(self.Middle_Frame, font=(self.letter_font, 14))
+        self.name_entry.grid(column=3, row=2, pady=10, sticky='w')
         self.relation = Listbox(
-            self.Middle_Frame, width=20, height=1, selectmode=SINGLE, exportselection=0, font=('Courier', 14, 'bold'))
-        self.relation.grid(column=1, row=3, pady=10, sticky=W)
+            self.Middle_Frame, width=20, height=1, selectmode='single', exportselection=0, font=(self.letter_font, 14, 'bold'))
+        self.relation.grid(column=1, row=3, pady=10, sticky='w')
         self.relation.insert(0, 's/o')
         self.relation.insert(1, 'd/o')
         self.relation.insert(2, 'w/o')
         self.relation.bind('<KeyPress>', self.select_keysym_value)
         self.father_name_entry = ttk.Entry(
-            self.Middle_Frame, font=('Courier', 14))
+            self.Middle_Frame, font=(self.letter_font, 14))
         self.father_name_entry.bind('<Return>', self.add)
         self.father_name_entry.grid(
-            column=3, row=3, pady=10, sticky=W)
+            column=3, row=3, pady=10, sticky='w')
         
         self.remarks_label = ttk.Label(
-            self.Middle_Frame, text='Remarks', font=('Courier', 14, 'bold'))
-        self.remarks_label.grid(column=0, row=4, padx=20, sticky=W)
+            self.Middle_Frame, text='Remarks', font=(self.letter_font, 14, 'bold'))
+        self.remarks_label.grid(column=0, row=4, padx=20, sticky='w')
         self.remarks_entry = ttk.Entry(
-            self.Middle_Frame, font=('Courier', 14), width=60)
+            self.Middle_Frame, font=(self.letter_font, 14), width=60)
         self.remarks_entry.bind('<Return>', self.add)
         self.remarks_entry.grid(
-            column=1, row=4, columnspan=4, pady=10, sticky=W)
+            column=1, row=4, columnspan=4, pady=10, sticky='w')
 
         self.trv = ttk.Treeview(
             self.Middle_Frame, selectmode='browse')
@@ -140,9 +144,13 @@ class NOC(tk.Tk):
         self.letter_Btn = ttk.Button(self.Bottom_Frame, text='Issue Letter',
                                      command=self.issue_letter, width=13)
         self.letter_Btn.grid(column=2, row=0, padx=10, pady=10)
+        self.font_set = ttk.Button(self.Bottom_Frame, text='Font Settings',
+                                   command=self.font_settings, width=13)
+        self.font_set.grid(column=3, row=0, padx=10, pady=10)
         self.exit_Btn = ttk.Button(self.Bottom_Frame, text='Exit',
                                    command=self.destroy, width=13)
-        self.exit_Btn.grid(column=3, row=0, columnspan=2, padx=10, pady=10)
+        self.exit_Btn.grid(column=4, row=0, columnspan=2, padx=10, pady=10)
+        
         con, cur = open_con(False)
         if type(cur) is str:
             messagebox.showerror("DB Connection Error", "Could Not Connect to Database")
@@ -170,36 +178,42 @@ class NOC(tk.Tk):
             filtered_list = list(filtered)
 
             if len(filtered_list) != 0:
-                event.widget.delete(0, END)
+                event.widget.delete(0, 'end')
                 event.widget.insert(0, filtered_list[0][0])
                 event.widget.selection_range(text_lenth, 'end')
 
 
 
     def check_already_issued(self, *args):
-        con, cur = open_con(False)
+        
         cnic = self.cnic_entry.get().strip()
-        Query = "Select cnic from Cash_Report Where Trim(cnic) = %s Union Select cnic from domicile Where Trim(cnic) = %s;"
-        cur.execute(Query, [cnic, cnic])
-        data = cur.fetchall()
-        if len(data) != 0:
-            cur.close()
-            con.close()
-            messagebox.showerror(
-                'Error', "Domicile already issued")
-            return 'Domicile already issued'
-        else:
+        try:
+            responce = self.session.get(f'https://admin-icta.nitb.gov.pk/domicile/applications?keyword={cnic}&from=&to=&status=')
+            if responce.url == 'https://admin-icta.nitb.gov.pk/login':
+                messagebox.showerror('Session Expired', 'Your NITB Session is expired. Please relogin to create new session')
+                return
+        except Exception as e:
+            messagebox.showerror('Server Error', e)
+            return
+        soup = BeautifulSoup(responce.content, 'html.parser')
+        notfound = soup.find('div', class_ = 'alert alert-info alert-dismissable fade show has-icon')
+        if notfound is not None:
             Query = "Select CNIC from NOC_Applicants Where CNIC = %s"
+            con, cur = open_con(False)
             cur.execute(Query, [cnic])
             data = cur.fetchall()
             cur.close()
             con.close()
-            if len(data) != 0:
+            if data:
                 messagebox.showerror(
                     'Error', "NOC already issued to this applicant")
                 return 'already noc issued'
             else:
                 return 'noc not issued'
+        else:
+            messagebox.showerror(
+                'Error', "Domicile already issued")
+            return 'Domicile already issued'
 
     def add(self, *args):
 
@@ -207,10 +221,10 @@ class NOC(tk.Tk):
             return messagebox.showerror('Error', "Please Provide Applicant's CNIC")
         if len(self.cnic_entry.get()) != 13:
             return messagebox.showerror('Error', "CNIC lenth is not 13 digit")
-        if self.edit_mode == FALSE:
-            check_result = self.check_already_issued()
-            if check_result == 'already noc issued' or check_result == 'Domicile already issued':
-                return
+        # if self.edit_mode == False:
+        #     check_result = self.check_already_issued()
+        #     if check_result == 'already noc issued' or check_result == 'Domicile already issued':
+        #         return
         if len(self.relation.curselection()) == 0:
             return messagebox.showerror('Error', 'Relation Not selected')
         elif len(self.relation.curselection()) > 1:
@@ -219,7 +233,7 @@ class NOC(tk.Tk):
             return messagebox.showerror('Error', "Please Provide Applicant's Name")
         if len(self.father_name_entry.get()) == 0:
             return messagebox.showerror('Error', "Please Provide Applicant's Father Name")
-        if self.child_edit_mode == FALSE:
+        if self.child_edit_mode == False:
             for line in self.trv.get_children():
                 if str(self.trv.item(line)['values'][1]) == self.cnic_entry.get():
                     return messagebox.showerror('Error', 'CNIC Already exist')
@@ -237,14 +251,14 @@ class NOC(tk.Tk):
                 self.relation.get(self.relation.curselection())), "{}".format(self.father_name_entry.get())))
 
             self.trv.item(selectedItem, text='', values=val_tpl)
-            self.child_edit_mode = FALSE
+            self.child_edit_mode = False
             self.Add_Btn.config(text='Add Applicant')
 
     def self_trv_click(self, *args):
 
         if len(self.trv.selection()) == 0:
             return
-        self.child_edit_mode = TRUE
+        self.child_edit_mode = True
         self.Add_Btn.config(text='Update Child')
         self.cnic_entry.delete('0', 'end')
         self.name_entry.delete('0', 'end')
@@ -271,19 +285,19 @@ class NOC(tk.Tk):
         self.cnic_entry.delete('0', 'end')
         self.name_entry.delete('0', 'end')
         self.father_name_entry.delete('0', 'end')
-        self.child_edit_mode = FALSE
+        self.child_edit_mode = False
         self.Add_Btn.config(text='Add Applicant')
     
     def select_keysym_value(self, event):
         for itm in range(event.widget.size()):
             if event.keysym.lower() == event.widget.get(itm)[:1]:
-                event.widget.selection_clear(0, END)
+                event.widget.selection_clear(0, 'end')
                 event.widget.select_set(itm)
                 event.widget.see(itm)
                 event.widget.activate(itm)
                 break
     def Save_data(self):
-        if self.edit_mode == FALSE:
+        if self.edit_mode == False:
             
             con, cur = open_con(False)
             self.data_list = []
@@ -292,7 +306,7 @@ class NOC(tk.Tk):
             if len(self.data_list) == 0:
                 return messagebox.showerror('Error', 'Nothing to Save')
 
-            Query = "Insert Into NOC_Letters (Letter_Date,NOC_Issued_To, Remarks) values (curdate(), %s, %s);"
+            Query = "Insert Into NOC_Letters (Letter_Date, NOC_Issued_To, Remarks) values (curdate(), %s, %s);"
 
             cur.execute(Query, [self.Districts.get(), self.remarks_entry.get()])
             con.commit()
@@ -386,9 +400,9 @@ class NOC(tk.Tk):
                     con.commit()
             messagebox.showinfo('Success', "Record Updated")
             con.close()
-            self.edit_mode = FALSE
+            self.edit_mode = False
             self.save_Btn.config(text='Save Record')
-            self.child_edit_mode = FALSE
+            self.child_edit_mode = False
             self.Add_Btn.config(text='Add Applicant')
             self.addition_list = []
             self.deletion_list = []
@@ -416,11 +430,11 @@ class NOC(tk.Tk):
             data = cur.fetchall()
             cur.close()
             con.close()
-            self.letter_date_entry.delete(0, END)
-            self.Districts.delete(0, END)
-            self.cnic_entry.delete(0, END)
-            self.name_entry.delete(0, END)
-            self.father_name_entry.delete(0, END)
+            self.letter_date_entry.delete(0, 'end')
+            self.Districts.delete(0, 'end')
+            self.cnic_entry.delete(0, 'end')
+            self.name_entry.delete(0, 'end')
+            self.father_name_entry.delete(0, 'end')
             self.remarks_entry.delete('0', 'end')
             loop = 0
             self.old_child_list = []
@@ -432,7 +446,7 @@ class NOC(tk.Tk):
                     self.Districts.insert(
                         0, row['NOC_Issued_To'])
                     self.letter_date_entry.config(state='normal')
-                    self.letter_date_entry.delete(0, END)
+                    self.letter_date_entry.delete(0, 'end')
                     self.letter_date_entry.insert(
                         0, row['Letter_Date'])
                     self.remarks_entry.insert(0, str(row['Remarks']))
@@ -444,7 +458,7 @@ class NOC(tk.Tk):
                         row['Relation']), "{}".format(row['Applicant_FName'])))
                     self.old_child_list.append(row['App_ID'])
 
-                self.edit_mode = TRUE
+                self.edit_mode = True
                 self.save_Btn.config(text='Update Record')
         else:
             print('Record ID Not available')
@@ -548,8 +562,8 @@ class NOC(tk.Tk):
         self.edit_window = Toplevel()
         self.edit_window.geometry("800x400")
         self.edit_window.title('Record Selection')
-        Top_Frame = Frame(self.edit_window)
-        Top_Frame.pack(fill=X)
+        Top_Frame = ttk.Frame(self.edit_window)
+        Top_Frame.pack(fill='x')
         search_type = Listbox(
             Top_Frame, width=15, height=1, exportselection=0, font=('Bell', 12))
         search_type.grid(row=1, column=0, padx=10, pady=10)
@@ -558,13 +572,13 @@ class NOC(tk.Tk):
         search_type.insert(2, "CNIC")
         search_type.select_set(0)
         search_type.see(0)
-        search_input = Entry(Top_Frame, width=15, font=('Bell, 12'))
+        search_input = ttk.Entry(Top_Frame, width=15, font=('Bell, 12'))
         search_input.grid(row=1, column=1, padx=10, pady=10)
         search_input.bind('<Return>', Search)
-        Bottom_Frame = Frame(self.edit_window)
-        Bottom_Frame.pack(fill=X, expand=1)
+        Bottom_Frame = ttk.Frame(self.edit_window)
+        Bottom_Frame.pack(fill='x', expand=1)
         trv = ttk.Treeview(Bottom_Frame, selectmode='browse', height=15)
-        trv.pack(fill=BOTH, expand=TRUE, padx=10, pady=10)
+        trv.pack(fill='both', expand=True, padx=10, pady=10)
         trv["columns"] = ("1", "2", "3", "4", "5", "6")
         trv['show'] = 'headings'
         trv.column("1", width=50, anchor='w')
@@ -582,11 +596,11 @@ class NOC(tk.Tk):
         trv.heading("6", text="Applicant Name", anchor='w')
         trv.bind("<Double-1>", trv_click)
 
-        search_btn = Button(Top_Frame, width=15,
-                            text='Search', command=Search, font=('Bell', 12))
+        search_btn = ttk.Button(Top_Frame, width=15,
+                            text='Search', command=Search)
         search_btn.grid(row=1, column=3)
-        cancel_btn = Button(Top_Frame, width=15, text='Cancel',
-                            font=('Bell', 12), command=cancel)
+        cancel_btn = ttk.Button(Top_Frame, width=15, text='Cancel',
+                             command=cancel)
         cancel_btn.grid(row=1, column=4, padx=10, pady=10)
 
         start_up()
@@ -597,6 +611,45 @@ class NOC(tk.Tk):
         self.load_data()
         self.letter_date_entry.config(state='normal')
 
+    def font_settings(self):
+        setting_window = Toplevel()
+        setting_window.geometry("300x200+300+300")
+        font_list = ["Courier", "Helvetica", "Times"]
+        font_size_list = [11, 12, 13, 14, 15, 16]
+        list_box_var = Variable(value = font_list)
+        list_box_var2 = Variable(value = font_size_list)
+        ttk.Label(setting_window, text='Font', anchor='w').grid(row=0, column=0, padx=10, pady=10)
+        self.font_list_box = Listbox(
+            setting_window, width=15, height=1, selectmode='browes', listvariable=list_box_var, exportselection=0, font=(self.letter_font, 14, 'bold'))
+        self.font_list_box.grid(row=0, column=1, padx=10, pady=10)
+        # self.font_list_box.select_set(0)
+        # self.font_list_box.see(0)
+        ttk.Label(setting_window, text='Font Size', anchor='w').grid(row=1, column=0, padx=10, pady=10)
+        self.font_size_list_box = Listbox(
+            setting_window, width=15, height=1, selectmode='browes', listvariable=list_box_var2, exportselection=0, font=(self.letter_font, 14, 'bold'))
+        self.font_size_list_box.grid(row=1, column=1, padx=10, pady=10)
+        # self.font_size_list_box.select_set(0)
+        # self.font_size_list_box.see(0)
+        indx = font_list.index(self.letter_font)
+        self.font_list_box.select_set(indx)
+        self.font_list_box.see(indx)
+
+        indx = font_size_list.index(self.letter_font_size)
+        self.font_size_list_box.select_set(indx)
+        self.font_size_list_box.see(indx)
+        def update_setting():
+            if len(self.font_list_box.curselection()) != 1:
+                return messagebox.showerror("Reselect", "Please re-select one value from font list")
+            if len(self.font_size_list_box.curselection()) != 1:
+                return messagebox.showerror("Reselect", "Please re-select one value from font size list")
+            self.letter_font = self.font_list_box.get(self.font_list_box.curselection())
+            self.letter_font_size = int(self.font_size_list_box.get(self.font_size_list_box.curselection()))
+            setting_window.destroy()
+        ttk.Button(setting_window, text='Update', command=update_setting).grid(row=2, column=0, columnspan=2, padx=10, pady=10)
+
+        
+        
+        
     def issue_letter(self):
         self.Record_Selector()
         if self.letter_id == 0:
@@ -618,11 +671,11 @@ class NOC(tk.Tk):
             pdf = FPDF()
             pdf.add_page()
 
-            # pdf.add_font('courier', '', "c:\WINDOWS\FONTS\courier.ttf", uni=True)
-            # pdf.add_font('courier', 'B', "c:\WINDOWS\FONTS\courier.ttf", uni=True)
+            # pdf.add_font(self.letter_font, '', "c:\WINDOWS\FONTS\courier.ttf", uni=True)
+            # pdf.add_font(self.letter_font, 'B', "c:\WINDOWS\FONTS\courier.ttf", uni=True)
             pdf.set_left_margin(15)
             pdf.set_right_margin(15)
-            pdf.set_font('courier', 'B', size=16)
+            pdf.set_font(self.letter_font, 'B', size=self.letter_font_size+1)
             pdf.set_fill_color(211, 211, 211)
             #pdf.image('govt_logo.png', x=10, y=10, w=30, h=30)
             pdf.ln(7)
@@ -635,7 +688,7 @@ class NOC(tk.Tk):
             #pdf.cell(20, 6, text='', align='C')
             pdf.cell(0, 6, text='ISLAMABAD',
                      new_x="LMARGIN", new_y="NEXT", align='C')
-            pdf.set_font('courier', size=14)
+            pdf.set_font(self.letter_font, size=self.letter_font_size)
             pdf.ln(8)
             pdf.cell(10, 6, text='')
             pdf.cell(20, 6, text='From:', align='L')
@@ -669,17 +722,17 @@ class NOC(tk.Tk):
             
             pdf.cell(15, 6, text='Subject:', align='L')
             pdf.cell(15, 6, text='')
-            pdf.set_font('courier', 'BU', size=14)
+            pdf.set_font(self.letter_font, 'BU', size=self.letter_font_size)
             pdf.cell(40, 6, text='ISSUANCE OF NO OBJECTION CERTIFICATE',
                      new_x="LMARGIN", new_y="NEXT", align='L')
 
-            pdf.set_font('courier', size=14)
+            pdf.set_font(self.letter_font, size=self.letter_font_size)
             
             pdf.multi_cell(
                 0, 10, text='          The Computerized record has been inspected. As per compuerized record, No domicile issued in favour of following persons from this office:-')
             pdf.ln(4)
             
-            pdf.set_font('courier', size=14)
+            pdf.set_font(self.letter_font, size=self.letter_font_size)
             #lst = [[1, '61101-1234596-8', 'Manha Hamid Kakakhel', 'Syed M Hamid Shah Kaka Khel'], [2, '61101-1234586-8', 'Maira Hamid Jehangir Shah Kakakhel', 'Hamid Shah'], [3, '61101-1234596-8', 'Habiba Hamid Shah Kaka Khel', 'Hamid Shah']]
             sl = 0
             grey = (128, 128, 128)
@@ -701,12 +754,12 @@ class NOC(tk.Tk):
                     row.cell(str(data_row["Applicant_FName"]))
             pdf.ln(4)
             pdf.multi_cell(
-                0, 10, text='2.     It is not possible to check the manual record. However, applicant has/have submitted an affidavit regarding non-issuance of domicile from Islamabad.')
+                0, 10, text='2.        It is not possible to check the manual record. However, applicant has/have submitted an affidavit regarding non-issuance of domicile from Islamabad.')
 
             pdf.ln(8)
             pdf.ln(8)
             # signature
-            pdf.set_font('courier', 'B', size=14)
+            pdf.set_font(self.letter_font, 'B', size=self.letter_font_size)
             pdf.cell(70, 6, text='')
             pdf.cell(0, 6, text='Incharge Domicile Branch', align='C', new_x="LMARGIN", new_y="NEXT")
             pdf.cell(70, 6, text='')
@@ -722,5 +775,7 @@ class NOC(tk.Tk):
 if __name__ == '__main__':
     # Obj = NOC('25.48.184.239')
     # Obj.mainloop()
-    Obj = NOC()
+    session = 'dumy object'
+    user_data = {'user_id':3}
+    Obj = NOC(session, user_data)
     Obj.mainloop()

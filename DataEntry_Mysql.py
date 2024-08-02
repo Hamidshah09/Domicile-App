@@ -2,8 +2,8 @@ import os
 from datetime import timedelta
 import Validation
 import tkinter as tk
-from tkinter import *
-from tkinter import ttk, messagebox
+# from tkinter import *
+from tkinter import INSERT, SEL, Entry, Frame, IntVar, Label, Listbox, PhotoImage, Text, Tk, Toplevel, Variable, ttk, messagebox
 from tkinter.filedialog import askopenfile
 from datetime import datetime
 
@@ -15,25 +15,25 @@ import json
 from PIL import Image, ImageTk
 from tools import open_con
 
-class dataentry(tk.Tk):
-    def __init__(self):
+class dataentry(Tk):
+    def __init__(self, user_data):
         super().__init__()
-
+        self.user_data = user_data
         self.geometry('1400x750+50+50')
         # self.attributes('-fullscreen', True)
         # self.attributes('-alpha', 0.8)
         path = os.getcwd()
         path = path+r"\theme"
-        self.title('CFC APP 1.7')
+        self.title('CFC APP 3.5')
         self.state('zoomed')
-        # self.tk.call('lappend', 'auto_path',
+        # self.call('lappend', 'auto_path',
         #              path)
-        # self.tk.call('package', 'require', 'awblack')
+        # self.call('package', 'require', 'awblack')
         f = open("config.json", "r")
         self.j_obj = json.load(f)
         f.close()
-        self.tk.call("source", "{}".format(self.j_obj['theme_source']))
-        self.tk.call("set_theme", "{}".format(self.j_obj['theme_mode']))
+        self.call("source", "{}".format(self.j_obj['theme_source']))
+        self.call("set_theme", "{}".format(self.j_obj['theme_mode']))
 
         self.theme_style = ttk.Style(self)
         font_name = 'Courier New'
@@ -54,143 +54,143 @@ class dataentry(tk.Tk):
         self.binaryfile = None
         self.widget_name = ''
         self.child_data_list = []
-        self.child_insert_chk = tk.IntVar(self)
+        self.child_insert_chk = IntVar(self)
         self.on_img = PhotoImage('on.png')
         self.off_img = PhotoImage('off.png')
         self.Top_Frame = Frame(
-            self, relief=RIDGE, border=1, height=10)  # bg='#24304a'
-        self.Top_Frame.pack(padx=10, pady=10, fill=X)
+            self, relief='ridge', border=1, height=10)  # bg='#24304a'
+        self.Top_Frame.pack(padx=10, pady=10, fill='x')
         self.Top_label = ttk.Label(
             self.Top_Frame, text='New Domicile Application', border=1, font=('Courier New', 18, 'bold'))  # background='#24304a'
         self.Top_label.pack()
-        self.edit_mode = FALSE
-        self.Grid_Frame = Frame(self, relief=RIDGE, border=1)  # bg='#24304a'
-        self.Grid_Frame.pack(padx=10, pady=5, fill=BOTH, expand=TRUE)
+        self.edit_mode = False
+        self.Grid_Frame = Frame(self, relief='ridge', border=1)  # bg='#24304a'
+        self.Grid_Frame.pack(padx=10, pady=5, fill='both', expand=True)
         self.Bottom_Frame = Frame(
-            self, relief=RIDGE, border=1)  # , bg='#24304a'
-        self.Bottom_Frame.pack(padx=10, pady=5, fill=BOTH, expand=TRUE)
+            self, relief='ridge', border=1)  # , bg='#24304a'
+        self.Bottom_Frame.pack(padx=10, pady=5, fill='both', expand=True)
         self.Status_Frame = Frame(
-            self, relief=RIDGE, border=1)  # , bg='#24304a'
-        self.Status_Frame.pack(padx=10, pady=5, fill=BOTH, expand=TRUE)
+            self, relief='ridge', border=1)  # , bg='#24304a'
+        self.Status_Frame.pack(padx=10, pady=5, fill='both', expand=True)
 
-        # self.List_Teh_Dist = tk.Listbox(
+        # self.List_Teh_Dist = Listbox(
         #     self.Grid_Frame, selectmode='single', exportselection=0, height=3, font=self.list_font)
         # Creating Labels
         self.Record_Date_Label = ttk.Label(
             self.Grid_Frame, text='Record Date', font=self.label_font)
         self.Record_Date_Label.grid(
-            column=0, row=0, padx=10, pady=10, sticky=tk.W)
+            column=0, row=0, padx=10, pady=10, sticky='w')
         self.Lbl_CNIC = ttk.Label(self.Grid_Frame, text='CNIC', font=self.label_font).grid(
-            column=2, row=0, padx=10, pady=10, sticky=tk.W)
+            column=2, row=0, padx=10, pady=10, sticky='w')
         self.Lbl_First_Name = ttk.Label(self.Grid_Frame, text='First Name', font=self.label_font).grid(
-            column=4, row=0, padx=10, pady=10, sticky=tk.W)
+            column=4, row=0, padx=10, pady=10, sticky='w')
         # self.Lbl_Last_Name = ttk.Label(self.Grid_Frame, text='Last Name', font=self.label_font).grid(
-        #     column=4, row=0, padx=10, pady=10, sticky=tk.W)
+        #     column=4, row=0, padx=10, pady=10, sticky='w')
         self.Lbl_Father_Name = ttk.Label(self.Grid_Frame, text='Father Name', font=self.label_font).grid(
-            column=0, row=1, padx=10, pady=10, sticky=tk.W)
+            column=0, row=1, padx=10, pady=10, sticky='w')
         self.Lbl_Spouse_Name = ttk.Label(self.Grid_Frame, text='Spouse Name', font=self.label_font).grid(
-            column=2, row=1, padx=10, pady=10, sticky=tk.W)
+            column=2, row=1, padx=10, pady=10, sticky='w')
         self.Lbl_Contact = ttk.Label(self.Grid_Frame, text='Contact', font=self.label_font).grid(
-            column=4, row=1, padx=10, pady=10, sticky=tk.W)
+            column=4, row=1, padx=10, pady=10, sticky='w')
         self.Lbl_Placeofbirth = ttk.Label(self.Grid_Frame, text='Place of birth', font=self.label_font).grid(
-            column=0, row=2, padx=10, pady=10, sticky=tk.W)
+            column=0, row=2, padx=10, pady=10, sticky='w')
         self.Lbl_Date_of_Birth = ttk.Label(self.Grid_Frame, text='Date of Birth', font=self.label_font).grid(
-            column=2, row=2, padx=10, pady=10, sticky=tk.W)
+            column=2, row=2, padx=10, pady=10, sticky='w')
         self.Lbl_Arrival_Date = ttk.Label(self.Grid_Frame, text='Arrival Date', font=self.label_font).grid(
-            column=4, row=2, padx=10, pady=10, sticky=tk.W)
+            column=4, row=2, padx=10, pady=10, sticky='w')
 
         self.Lbl_Pre_Tehsil = ttk.Label(self.Grid_Frame, text='Present Tehsil', font=self.label_font).grid(
-            column=0, row=3, padx=10, pady=10, sticky=tk.W)
+            column=0, row=3, padx=10, pady=10, sticky='w')
         self.Label_Pre_District = ttk.Label(self.Grid_Frame, text='Present District', font=self.label_font).grid(
-            column=2, row=3, padx=10, pady=10, sticky=tk.W)
+            column=2, row=3, padx=10, pady=10, sticky='w')
         self.Lbl_Present_Province = ttk.Label(self.Grid_Frame, text='Present Province', font=self.label_font).grid(
-            column=4, row=3, padx=10, pady=10, sticky=tk.W)
+            column=4, row=3, padx=10, pady=10, sticky='w')
         self.Lbl_Present_Address = ttk.Label(self.Grid_Frame, text='Present Address', font=self.label_font).grid(
-            column=0, row=5, padx=10, pady=10, sticky=tk.W)
+            column=0, row=5, padx=10, pady=10, sticky='w')
 
         self.Lbl_Prme_Tehsil = ttk.Label(self.Grid_Frame, text='Permenent Tehsil', font=self.label_font).grid(
-            column=0, row=6, padx=10, pady=10, sticky=tk.W)
+            column=0, row=6, padx=10, pady=10, sticky='w')
         self.Label_Prme_District = ttk.Label(self.Grid_Frame, text='Permenent District', font=self.label_font).grid(
-            column=2, row=6, padx=10, pady=10, sticky=tk.W)
+            column=2, row=6, padx=10, pady=10, sticky='w')
         self.Lbl_Perm_Province = ttk.Label(self.Grid_Frame, text='Permenent Province', font=self.label_font).grid(
-            column=4, row=6, padx=10, pady=10, sticky=tk.W)
+            column=4, row=6, padx=10, pady=10, sticky='w')
         self.Lbl_Permenent_Address = ttk.Label(self.Grid_Frame, text='Permenent Address', font=self.label_font).grid(
-            column=0, row=8, padx=10, pady=10, sticky=tk.W)
+            column=0, row=8, padx=10, pady=10, sticky='w')
         self.Lbl_Gender = ttk.Label(self.Grid_Frame, text='Gender', font=self.label_font).grid(
-            column=0, row=9, padx=10, pady=10, sticky=tk.W)
+            column=0, row=9, padx=10, pady=10, sticky='w')
         self.Lbl_Religion = ttk.Label(self.Grid_Frame, text='Religion', font=self.label_font).grid(
-            column=2, row=9, padx=10, pady=10, sticky=tk.W)
+            column=2, row=9, padx=10, pady=10, sticky='w')
         self.Lbl_Marital_Status = ttk.Label(self.Grid_Frame, text='Marital Status', font=self.label_font).grid(
-            column=4, row=9, padx=10, pady=10, sticky=tk.W)
+            column=4, row=9, padx=10, pady=10, sticky='w')
         self.Lbl_Qulification = ttk.Label(self.Grid_Frame, text='Qulification', font=self.label_font).grid(
-            column=0, row=10, padx=10, pady=10, sticky=tk.W)
+            column=0, row=10, padx=10, pady=10, sticky='w')
         self.Lbl_Occupation = ttk.Label(self.Grid_Frame, text='Occupation', font=self.label_font).grid(
-            column=2, row=10, padx=10, pady=10, sticky=tk.W)
+            column=2, row=10, padx=10, pady=10, sticky='w')
         self.Lbl_Process_type = ttk.Label(self.Grid_Frame, text='Proccess Type', font=self.label_font).grid(
-            column=4, row=10, padx=10, pady=10, sticky=tk.W)
+            column=4, row=10, padx=10, pady=10, sticky='w')
         self.Lbl_Request_Type = ttk.Label(self.Grid_Frame, text='Request Type', font=self.label_font).grid(
-            column=0, row=11, padx=10, pady=10, sticky=tk.W)
+            column=0, row=11, padx=10, pady=10, sticky='w')
         self.Lbl_Application_Type = ttk.Label(self.Grid_Frame, text='Application Type', font=self.label_font).grid(
-            column=2, row=11, padx=10, pady=10, sticky=tk.W)
+            column=2, row=11, padx=10, pady=10, sticky='w')
         self.Lbl_Service_Type = ttk.Label(self.Grid_Frame, text='Service Type', font=self.label_font).grid(
-            column=4, row=11, padx=10, pady=10, sticky=tk.W)
+            column=4, row=11, padx=10, pady=10, sticky='w')
         self.Lbl_Payment_Type = ttk.Label(self.Grid_Frame, text='Payment Type', font=self.label_font).grid(
-            column=0, row=12, padx=10, pady=10, sticky=tk.W)
+            column=0, row=12, padx=10, pady=10, sticky='w')
         self.Lbl_Approver = ttk.Label(self.Grid_Frame, text='Approver', font=self.label_font).grid(
-            column=2, row=12, padx=10, pady=10, sticky=tk.W)
+            column=2, row=12, padx=10, pady=10, sticky='w')
 
         self.Record_Date = ttk.Entry(
             self.Grid_Frame, font=self.entry_font)
         self.Record_Date.grid(
-            column=1, row=0, padx=10, pady=10, sticky=tk.W)
+            column=1, row=0, padx=10, pady=10, sticky='w')
         self.Record_Date.insert(0, datetime.today().date())
 
         self.Entry_CNIC = ttk.Entry(
             self.Grid_Frame, font=self.entry_font)
-        self.Entry_CNIC.grid(column=3, row=0, padx=10, pady=10, sticky=tk.W)
-        self.bind('<Tab>', lambda cnic: self.check_dup_cnic(
+        self.Entry_CNIC.grid(column=3, row=0, padx=10, pady=10, sticky='w')
+        self.Entry_CNIC.bind('<Tab>', lambda cnic: self.check_dup_cnic(
             cnic=self.Entry_CNIC.get()))
         self.Entry_First_Name = ttk.Entry(
             self.Grid_Frame, font=self.entry_font)
         self.Entry_First_Name.grid(
-            column=5, row=0, padx=10, pady=10, sticky=tk.W)
+            column=5, row=0, padx=10, pady=10, sticky='w')
 
         # self.Entry_Last_Name = ttk.Entry(self.Grid_Frame, font=self.entry_font)
         # self.Entry_Last_Name.grid(column=5, row=0, padx=10,
-        #                           pady=10, sticky=tk.W)
+        #                           pady=10, sticky='w')
 
         self.Entry_Father_Name = ttk.Entry(
             self.Grid_Frame, font=self.entry_font)
         self.Entry_Father_Name.grid(
-            column=1, row=1, padx=10, pady=10, sticky=tk.W)
+            column=1, row=1, padx=10, pady=10, sticky='w')
 
         self.Entry_Spouse_Name = ttk.Entry(
             self.Grid_Frame, font=self.entry_font)
         self.Entry_Spouse_Name.grid(
-            column=3, row=1, padx=10, pady=10, sticky=tk.W)
+            column=3, row=1, padx=10, pady=10, sticky='w')
 
         self.Entry_Contact = ttk.Entry(self.Grid_Frame, font=self.entry_font)
-        self.Entry_Contact.grid(column=5, row=1, padx=10, pady=10, sticky=tk.W)
+        self.Entry_Contact.grid(column=5, row=1, padx=10, pady=10, sticky='w')
         self.Entry_Contact.insert(0, '00000000000')
         self.Entry_Placeofbirth = ttk.Entry(
             self.Grid_Frame, font=self.entry_font)
         self.Entry_Placeofbirth.grid(
-            column=1, row=2, padx=10, pady=10, sticky=tk.W)
+            column=1, row=2, padx=10, pady=10, sticky='w')
         self.Entry_Placeofbirth.insert(0, 'ISLAMABAD')
 
         self.Entry_Date_of_Birth = ttk.Entry(
             self.Grid_Frame, font=self.entry_font)
         self.Entry_Date_of_Birth.grid(
-            column=3, row=2, padx=10, pady=10, sticky=tk.W)
+            column=3, row=2, padx=10, pady=10, sticky='w')
         self.Entry_Date_of_Birth.bind(
             '<FocusOut>', self.update_arrival)
         self.Entry_Arrival_Date = ttk.Entry(
             self.Grid_Frame, font=self.entry_font)
         self.Entry_Arrival_Date.grid(
-            column=5, row=2, padx=10, pady=10, sticky=tk.W)
+            column=5, row=2, padx=10, pady=10, sticky='w')
         self.widget_focus = False
         self.widget_name = ''
-        self.data_list = tk.Listbox(
+        self.data_list = Listbox(
             self.Grid_Frame, selectmode='single', exportselection=0, height=5, font=self.list_font)
         self.data_list.bind('<Return>', self.export_selection)
         self.data_list.bind('<Double-Button-1>', self.export_selection)
@@ -204,7 +204,7 @@ class dataentry(tk.Tk):
             '<FocusIn>', lambda event: self.data_list.place_forget())
         self.Entry_Pre_Tehsil.bind('<Down>', self.list_get_focus)
         self.Entry_Pre_Tehsil.grid(
-            column=1, row=3, padx=10, pady=10, sticky=tk.W)
+            column=1, row=3, padx=10, pady=10, sticky='w')
         self.Entry_Pre_District = ttk.Entry(
             self.Grid_Frame, font=self.entry_font)
         self.Entry_Pre_District.bind(
@@ -214,9 +214,9 @@ class dataentry(tk.Tk):
             '<FocusIn>', lambda event: self.data_list.place_forget())
         self.Entry_Pre_District.bind('<Down>', self.list_get_focus)
         self.Entry_Pre_District.grid(
-            column=3, row=3, padx=10, pady=10, sticky=tk.W)
+            column=3, row=3, padx=10, pady=10, sticky='w')
         # Getting Tehsil and District Lists from db
-        self.List_Pres_Province = tk.Listbox(
+        self.List_Pres_Province = Listbox(
             self.Grid_Frame, selectmode='single', exportselection=0, height=1, font=self.list_font)
 
         self.List_Pres_Province.insert(1, "Azad Jammu and Kashmir")
@@ -230,16 +230,16 @@ class dataentry(tk.Tk):
         self.List_Pres_Province.bind(
             '<FocusIn>', lambda event: self.data_list.place_forget())
         self.List_Pres_Province.grid(
-            column=5, row=3, padx=10, pady=10, sticky=tk.W)
+            column=5, row=3, padx=10, pady=10, sticky='w')
         self.Entry_Present_Address = ttk.Entry(
             self.Grid_Frame, width=60, font=self.entry_font)
         self.Entry_Present_Address.grid(
-            column=1, row=5, columnspan=4, padx=10, pady=10, sticky=tk.W)
+            column=1, row=5, columnspan=4, padx=10, pady=10, sticky='w')
 
         self.Btn_Same_Address = ttk.Button(
             self.Grid_Frame, text='Copy Address', command=self.copy_address)
         self.Btn_Same_Address.grid(
-            column=4, row=5, padx=10, pady=10, sticky=tk.W)
+            column=4, row=5, padx=10, pady=10, sticky='w')
         self.Btn_Same_Address.bind('<Alt-c>', self.copy_address)
         self.Entry_Prem_Tehsil = ttk.Entry(
             self.Grid_Frame, font=self.entry_font)
@@ -250,7 +250,7 @@ class dataentry(tk.Tk):
             '<FocusIn>', lambda event: self.data_list.place_forget())
         self.Entry_Prem_Tehsil.bind('<Down>', self.list_get_focus)
         self.Entry_Prem_Tehsil.grid(
-            column=1, row=6, padx=10, pady=10, sticky=tk.W)
+            column=1, row=6, padx=10, pady=10, sticky='w')
 
         self.Entry_Prem_District = ttk.Entry(
             self.Grid_Frame, font=self.entry_font)
@@ -261,8 +261,8 @@ class dataentry(tk.Tk):
             '<FocusIn>', lambda event: self.data_list.place_forget())
         self.Entry_Prem_District.bind('<Down>', self.list_get_focus)
         self.Entry_Prem_District.grid(
-            column=3, row=6, padx=10, pady=10, sticky=tk.W)
-        self.List_Prem_Province = tk.Listbox(
+            column=3, row=6, padx=10, pady=10, sticky='w')
+        self.List_Prem_Province = Listbox(
             self.Grid_Frame, selectmode='single', exportselection=0, height=1, font=self.list_font)
         self.List_Prem_Province.insert(1, "Azad Jammu and Kashmir")
         self.List_Prem_Province.insert(2, "Balochistan")
@@ -275,50 +275,50 @@ class dataentry(tk.Tk):
         self.List_Prem_Province.bind(
             '<FocusIn>', lambda event: self.data_list.place_forget())
         self.List_Prem_Province.grid(
-            column=5, row=6, padx=10, pady=10, sticky=tk.W)
+            column=5, row=6, padx=10, pady=10, sticky='w')
 
         self.Entry_Permenant_Address = ttk.Entry(
             self.Grid_Frame, width=60, font=self.entry_font)
         self.Entry_Permenant_Address.bind(
             '<FocusIn>', lambda event: self.data_list.place_forget())
         self.Entry_Permenant_Address.grid(
-            column=1, row=8, columnspan=4, padx=10, pady=10, sticky=tk.W)
+            column=1, row=8, columnspan=4, padx=10, pady=10, sticky='w')
         self.Btn_Add_Dis = ttk.Button(
             self.Grid_Frame, text='Set District', command=self.set_district)
         self.Btn_Add_Dis.grid(
-            column=4, row=8, padx=10, pady=10, sticky=tk.W)
+            column=4, row=8, padx=10, pady=10, sticky='w')
         self.Entry_Pre_Tehsil.insert(0, 'Islamabad')
         self.Entry_Pre_District.insert(0, 'Islamabad ICT')
 
-        self.List_Gender = tk.Listbox(
+        self.List_Gender = Listbox(
             self.Grid_Frame, exportselection=0, height=1, font=self.list_font)
         self.List_Gender.insert(1, "Male")
         self.List_Gender.insert(2, "Female")
         self.List_Gender.insert(3, "Widow")
         self.List_Gender.grid(
-            column=1, row=9, padx=10, pady=10, sticky=tk.W)
+            column=1, row=9, padx=10, pady=10, sticky='w')
         self.List_Gender.bind('<KeyPress>', self.select_keysym_value)
-        self.List_Religion = tk.Listbox(
+        self.List_Religion = Listbox(
             self.Grid_Frame, exportselection=0, height=1, font=self.list_font)
         self.List_Religion.insert(1, 'Islam')
         self.List_Religion.insert(2, 'Christanity')
         self.List_Religion.insert(3, 'Hindu')
         self.List_Religion.insert(4, 'Other')
         self.List_Religion.grid(
-            column=3, row=9, padx=10, pady=10, sticky=tk.W)
+            column=3, row=9, padx=10, pady=10, sticky='w')
         self.List_Religion.select_set(0)
         self.List_Religion.bind('<KeyPress>', self.select_keysym_value)
         self.Religion_list = ['Islam', 'Christanity', 'Hindu', 'Other']
-        self.List_Marital_status = tk.Listbox(
+        self.List_Marital_status = Listbox(
             self.Grid_Frame, exportselection=0, height=1, font=self.list_font)
         self.List_Marital_status.insert(1, 'Single')
         self.List_Marital_status.insert(2, 'Married')
         self.List_Marital_status.insert(3, 'Widow')
         self.List_Marital_status.insert(4, 'Divorced')
         self.List_Marital_status.grid(
-            column=5, row=9, padx=10, pady=10, sticky=tk.W)
+            column=5, row=9, padx=10, pady=10, sticky='w')
         self.List_Marital_status.bind('<KeyPress>', self.select_keysym_value)
-        self.Qualification = tk.Listbox(
+        self.Qualification = Listbox(
             self.Grid_Frame,  exportselection=0, height=1, font=self.list_font)
         # 1;Primary;2;Middle;3;SSC;4;HSSC;5;Bachelors;6;Masters;7;PhD;8;NotAvailable;9;Other
         self.Qualification.insert(1, 'Primary')
@@ -331,12 +331,12 @@ class dataentry(tk.Tk):
         self.Qualification.insert(8, 'NotAvailable')
         self.Qualification.insert(9, 'Other')
         self.Qualification.grid(
-            column=1, row=10, padx=10, pady=10, sticky=tk.W)
+            column=1, row=10, padx=10, pady=10, sticky='w')
         self.Qualification.select_set(7)
         self.Qualification.see(7)
         self.Qualification.bind('<KeyPress>', self.select_keysym_value)
         # 1;Govt Employee;3;Own Business;4;Student;5;Other;6;House Wife;7;Private Job
-        self.List_Occupation = tk.Listbox(
+        self.List_Occupation = Listbox(
             self.Grid_Frame, exportselection=0, height=1, font=self.list_font)
         self.List_Occupation.insert(1, 'Govt. Employee')
         self.List_Occupation.insert(2, 'Not Available')
@@ -346,69 +346,64 @@ class dataentry(tk.Tk):
         self.List_Occupation.insert(6, 'House Wife')
         self.List_Occupation.insert(7, 'Private Job')
         self.List_Occupation.grid(
-            column=3, row=10, padx=10, pady=10, sticky=tk.W)
+            column=3, row=10, padx=10, pady=10, sticky='w')
         self.List_Occupation.select_set(6)
         self.List_Occupation.see(6)
         self.List_Occupation.bind('<KeyPress>', self.select_keysym_value)
 
-        self.List_Process_Type = tk.Listbox(
+        self.List_Process_Type = Listbox(
             self.Grid_Frame, exportselection=0, height=1, font=self.list_font)
         self.List_Process_Type.insert(1, 'Normal')
         self.List_Process_Type.insert(2, 'Urgent')
         self.List_Process_Type.grid(
-            column=5, row=10, padx=10, pady=10, sticky=tk.W)
+            column=5, row=10, padx=10, pady=10, sticky='w')
         self.List_Process_Type.bind('<KeyPress>', self.select_keysym_value)
 
         self.Process_List = ['Normal', 'Urgent']
-        self.List_Request_Type = tk.Listbox(
+        self.List_Request_Type = Listbox(
             self.Grid_Frame, exportselection=0, height=1, font=self.list_font)
         self.List_Request_Type.insert(1, 'New')
         self.List_Request_Type.insert(2, 'Revised')
         self.List_Request_Type.insert(3, 'Duplicate')
         self.List_Request_Type.grid(
-            column=1, row=11, padx=10, pady=10, sticky=tk.W)
+            column=1, row=11, padx=10, pady=10, sticky='w')
         self.List_Request_Type.bind('<KeyPress>', self.select_keysym_value)
 
-        self.List_Application_Type = tk.Listbox(
+        self.List_Application_Type = Listbox(
             self.Grid_Frame, exportselection=0, height=1, font=self.list_font)
         self.List_Application_Type.insert(1, 'Self')
         self.List_Application_Type.insert(2, 'Brother')
         self.List_Application_Type.grid(
-            column=3, row=11, padx=10, pady=10, sticky=tk.W)
+            column=3, row=11, padx=10, pady=10, sticky='w')
         self.List_Application_Type.bind('<KeyPress>', self.select_keysym_value)
 
-        self.List_Service_Type = tk.Listbox(
+        self.List_Service_Type = Listbox(
             self.Grid_Frame, exportselection=0, height=1, font=self.list_font)
         self.List_Service_Type.insert(1, 'Offline')
         self.List_Service_Type.insert(2, 'Online')
         self.List_Service_Type.grid(
-            column=5, row=11, padx=10, pady=10, sticky=tk.W)
+            column=5, row=11, padx=10, pady=10, sticky='w')
         self.List_Service_Type.bind('<KeyPress>', self.select_keysym_value)
 
-        self.List_Pyament_Type = tk.Listbox(
+        self.List_Pyament_Type = Listbox(
             self.Grid_Frame, exportselection=0, height=1, font=self.list_font)
         self.List_Pyament_Type.insert(1, 'Cash')
         self.List_Pyament_Type.insert(2, 'Challan')
         self.List_Pyament_Type.grid(
-            column=1, row=12, padx=10, pady=10, sticky=tk.W)
+            column=1, row=12, padx=10, pady=10, sticky='w')
         self.List_Pyament_Type.bind('<KeyPress>', self.select_keysym_value)
         # AC (Saddar);AC (Industrial Area);AC (Shalimar)
-        self.List_Approver = tk.Listbox(
+        self.List_Approver = Listbox(
             self.Grid_Frame, exportselection=0, height=1, font=self.list_font)
-        self.List_Approver.insert(0, 'AC (Saddar)')
-        self.List_Approver.insert(1, 'AC (I/A)')
-        self.List_Approver.insert(2, 'AC (Shalimar)')
-        self.List_Approver.insert(3, 'AC (Rural)')
         self.List_Approver.grid(
-            column=3, row=12, padx=10, pady=10, sticky=tk.W)
+            column=3, row=12, padx=10, pady=10, sticky='w')
         self.List_Approver.bind('<KeyPress>', self.select_keysym_value)
         # Check Buttons
-        self.Approver_List = ['AC (Saddar)', 'AC (I/A)',
-                              'AC (Shalimar)', 'AC (Rural)']
+        
         self.Lbl_purpose = ttk.Label(self.Grid_Frame, text='Purpuse', font=self.label_font).grid(
-            column=4, row=12, padx=10, pady=10, sticky=tk.W)
+            column=4, row=12, padx=10, pady=10, sticky='w')
         self.Entry_purpuse = ttk.Entry(self.Grid_Frame, font=self.entry_font)
-        self.Entry_purpuse.grid(column=5, row=12, padx=10, pady=10, sticky=tk.W)
+        self.Entry_purpuse.grid(column=5, row=12, padx=10, pady=10, sticky='w')
 
         self.cnic_front = IntVar(self)
         self.cnic_back = IntVar(self)
@@ -427,57 +422,57 @@ class dataentry(tk.Tk):
         self.theme_style.configure('TCheckbutton', font=self.check_font)
         self.chkfront = ttk.Checkbutton(self.Bottom_Frame, text="CNIC Front",
                                         variable=self.cnic_front, onvalue=-1, offvalue=0)
-        self.chkfront.grid(column=0, row=1, padx=10, pady=5, sticky=tk.W)
+        self.chkfront.grid(column=0, row=1, padx=10, pady=5, sticky='w')
 
         self.chkback = ttk.Checkbutton(self.Bottom_Frame, text="CNIC Back",
                                        variable=self.cnic_back, onvalue=-1, offvalue=0)
-        self.chkback.grid(column=1, row=1, padx=10, pady=5, sticky=tk.W)
+        self.chkback.grid(column=1, row=1, padx=10, pady=5, sticky='w')
 
         self.chkguardian = ttk.Checkbutton(self.Bottom_Frame, text="CNIC Guardian",
                                            variable=self.cnic_guardian, onvalue=-1, offvalue=0)
-        self.chkguardian.grid(column=2, row=1, padx=10, pady=5, sticky=tk.W)
+        self.chkguardian.grid(column=2, row=1, padx=10, pady=5, sticky='w')
 
         self.chkformb = ttk.Checkbutton(self.Bottom_Frame, text="Form B",
                                         variable=self.form_b, onvalue=-1, offvalue=0)
-        self.chkformb.grid(column=3, row=1, padx=10, pady=5, sticky=tk.W)
+        self.chkformb.grid(column=3, row=1, padx=10, pady=5, sticky='w')
         self.chkdomguardian = ttk.Checkbutton(self.Bottom_Frame, text="Domicile of Guardian",
                                               variable=self.domicile_of_guardian, onvalue=-1, offvalue=0)
-        self.chkdomguardian.grid(column=4, row=1, padx=10, pady=5, sticky=tk.W)
+        self.chkdomguardian.grid(column=4, row=1, padx=10, pady=5, sticky='w')
         self.chknoc = ttk.Checkbutton(self.Bottom_Frame, text="NOC",
                                       variable=self.noc_from_concerned_district, onvalue=-1, offvalue=0)
-        self.chknoc.grid(column=5, row=1, padx=10, pady=5, sticky=tk.W)
+        self.chknoc.grid(column=5, row=1, padx=10, pady=5, sticky='w')
 
         self.chkResidance_Prof = ttk.Checkbutton(self.Bottom_Frame, text="Residance Prof",
                                                  variable=self.Residance_Prof, onvalue=-1, offvalue=0)
         self.chkResidance_Prof.grid(
-            column=6, row=1, padx=10, pady=5, sticky=tk.W)
+            column=6, row=1, padx=10, pady=5, sticky='w')
         self.chkutility_bill = ttk.Checkbutton(self.Bottom_Frame, text="Utility Bill",
                                                variable=self.utility_bill, onvalue=-1, offvalue=0)
         self.chkutility_bill.grid(
-            column=0, row=2, padx=10, pady=5, sticky=tk.W)
+            column=0, row=2, padx=10, pady=5, sticky='w')
         self.chkeducer = ttk.Checkbutton(self.Bottom_Frame, text="Educational Certifiate",
                                          variable=self.educational_certificate, onvalue=-1, offvalue=0)
-        self.chkeducer.grid(column=1, row=2, padx=10, pady=5, sticky=tk.W)
+        self.chkeducer.grid(column=1, row=2, padx=10, pady=5, sticky='w')
 
         self.chkmrc = ttk.Checkbutton(self.Bottom_Frame, text="Marriage Certifiate",
                                       variable=self.marriage_registration_certificate, onvalue=-1, offvalue=0)
-        self.chkmrc.grid(column=2, row=2, padx=10, pady=5, sticky=tk.W)
+        self.chkmrc.grid(column=2, row=2, padx=10, pady=5, sticky='w')
 
         self.chkaffvotlst = ttk.Checkbutton(self.Bottom_Frame, text="Affidavit Voterlist",
                                             variable=self.affidavit_voterlist, onvalue=-1, offvalue=0)
-        self.chkaffvotlst.grid(column=3, row=2, padx=10, pady=5, sticky=tk.W)
+        self.chkaffvotlst.grid(column=3, row=2, padx=10, pady=5, sticky='w')
 
         self.chkaffdom = ttk.Checkbutton(self.Bottom_Frame, text="Affidavit Domicile",
                                          variable=self.affidavit_domicile, onvalue=-1, offvalue=0)
-        self.chkaffdom.grid(column=4, row=2, padx=10, pady=5, sticky=tk.W)
+        self.chkaffdom.grid(column=4, row=2, padx=10, pady=5, sticky='w')
 
         self.chkvlist = ttk.Checkbutton(self.Bottom_Frame, text="Voter List",
                                         variable=self.voter_list, onvalue=-1, offvalue=0)
-        self.chkvlist.grid(column=5, row=2, padx=10, pady=5, sticky=tk.W)
+        self.chkvlist.grid(column=5, row=2, padx=10, pady=5, sticky='w')
 
         self.chkdomch = ttk.Checkbutton(self.Bottom_Frame, text="Domicile Challan",
                                         variable=self.domicile_challan, onvalue=-1, offvalue=0)
-        self.chkdomch.grid(column=6, row=2, padx=10, pady=5, sticky=tk.W)
+        self.chkdomch.grid(column=6, row=2, padx=10, pady=5, sticky='w')
         self.Add_Ch_button = ttk.Button(
             self.Status_Frame, width=15, text='Add Childerns', command=self.add_Childerns)
         self.Add_Ch_button.grid(column=1, row=1, padx=10, pady=10)
@@ -513,14 +508,21 @@ class dataentry(tk.Tk):
         self.List_Application_Type.select_set(0)
         self.List_Service_Type.select_set(0)
         self.List_Pyament_Type.select_set(0)
-        self.List_Approver.select_set(0)
         self.List_Pres_Province.select_set(2)
         self.List_Prem_Province.select_set(2)
 
         con, cur = open_con(True)
         
         if type(cur) is str:
-            messagebox.showerror('Db Connection Error', con)            
+            messagebox.showerror('Db Connection Error', con) 
+        cur.execute("select * from approvers;")
+        self.Approver_Data = cur.fetchall()
+        if self.Approver_Data:
+            a = 0
+            for row in self.Approver_Data:
+                self.List_Approver.insert(a, row['approver_name'])
+                a += 1
+            self.List_Approver.select_set(0)           
         con1, cur1 = open_con(False)
         cur.execute(
             "Select * from Tehsils;")
@@ -640,16 +642,17 @@ class dataentry(tk.Tk):
 
     # def check_noc(self):
     
+    
 
     def check_dup_cnic(self, **kwargs):
-        if self.edit_mode == TRUE:
+        if self.edit_mode == True:
             return
         cnic = kwargs['cnic']
         cnic = cnic.strip()
         if len(cnic.strip()) == 0:
             return 'Zero Lenth'
         elif len(cnic) == 13:
-            if cnic.isnumeric() == FALSE:
+            if cnic.isnumeric() == False:
                 messagebox.showerror('showerror', 'CNIC is not numeric')
                 return 'CNIC is not numeric'
         else:
@@ -797,7 +800,7 @@ class dataentry(tk.Tk):
                 self.data_list.insert(i, item[0])
                 i += 1
                 # if len(filtered_list) != 0:
-            #     event.widget.delete(0, END)
+            #     event.widget.delete(0, 'end')
             #     event.widget.insert(0, filtered_list[0][0])
             #     event.widget.selection_range(txt_lenth, 'end')
 
@@ -814,7 +817,7 @@ class dataentry(tk.Tk):
             # for dat in data:
             #     txt_lenth = len(event.widget.get())
             #     if dat[0][:txt_lenth].upper() == event.widget.get().upper():
-            #         event.widget.delete(0, END)
+            #         event.widget.delete(0, 'end')
             #         event.widget.insert(0, dat[0])
             #         event.widget.selection_range(txt_lenth, 'end')
             #         break
@@ -823,7 +826,7 @@ class dataentry(tk.Tk):
 
         for itm in range(event.widget.size()):
             if event.keysym.upper() == event.widget.get(itm)[:1]:
-                event.widget.selection_clear(0, END)
+                event.widget.selection_clear(0, 'end')
                 event.widget.select_set(itm)
                 event.widget.see(itm)
                 event.widget.activate(itm)
@@ -853,7 +856,7 @@ class dataentry(tk.Tk):
             return messagebox.showerror('Error', 'Nothing Selected')
         if self.rec_id == 0:
             return messagebox.showerror('Error', 'Nothing Selected')
-        self.edit_mode = TRUE
+        self.edit_mode = True
         self.save_button.configure(text='Update')
         self.Add_Ch_button.configure(text='Edit Childerns')
         self.old_CNIC = self.Entry_CNIC.get()
@@ -869,7 +872,7 @@ class dataentry(tk.Tk):
         con.close()
 
         if len(data) != 0:
-            self.edit_mode = TRUE
+            self.edit_mode = True
             self.save_button.config(text='Update')
             self.Add_Ch_button.config(text='Edit Childerns')
             for row in data:
@@ -1005,11 +1008,10 @@ class dataentry(tk.Tk):
                 self.List_Pyament_Type.see(
                     int(row['Payment_Type'])-1)
 
-                self.List_Approver.selection_clear(0, 'end')
-                self.List_Approver.select_set(self.Approver_List.index(
-                    row['Approver_Desig']))
-                self.List_Approver.see(self.Approver_List.index(
-                    row['Approver_Desig']))
+                # self.List_Approver.selection_clear(0, 'end')
+                # self.List_Approver.select_set(self.Approver_List.index(
+                #     row['Approver_Desig']))
+                
                 # Check Buttons
                 self.Entry_purpuse.delete(0, 'end')
                 self.Entry_purpuse.insert(0, str(row['Purpuse']))
@@ -1051,23 +1053,23 @@ class dataentry(tk.Tk):
         self.Entry_Pre_Tehsil.insert(0, 'Islamabad')
         self.Entry_Pre_District.delete(0, 'end')
         self.Entry_Pre_District.insert(0, 'Islamabad ICT')
-        # self.List_Pres_Province.selection_clear(0, END)
+        # self.List_Pres_Province.selection_clear(0, 'end')
         self.Entry_Present_Address.delete(0, 'end')
         self.Entry_Prem_Tehsil.delete(0, 'end')
         self.Entry_Prem_District.delete(0, 'end')
-        # self.List_Prem_Province.selection_clear(0, END)
+        # self.List_Prem_Province.selection_clear(0, 'end')
         self.Entry_Permenant_Address.delete(0, 'end')
-        self.List_Gender.selection_clear(0, END)
-        self.List_Religion.selection_clear(0, END)
-        self.List_Marital_status.selection_clear(0, END)
-        self.Qualification.selection_clear(0, END)
-        self.List_Occupation.selection_clear(0, END)
-        # self.List_Process_Type.selection_clear(0, END)
-        # self.List_Request_Type.selection_clear(0, END)
-        # self.List_Application_Type.selection_clear(0, END)
-        # self.List_Service_Type.selection_clear(0, END)
-        # self.List_Pyament_Type.selection_clear(0, END)
-        # self.List_Approver.selection_clear(0, END)
+        self.List_Gender.selection_clear(0, 'end')
+        self.List_Religion.selection_clear(0, 'end')
+        self.List_Marital_status.selection_clear(0, 'end')
+        self.Qualification.selection_clear(0, 'end')
+        self.List_Occupation.selection_clear(0, 'end')
+        # self.List_Process_Type.selection_clear(0, 'end')
+        # self.List_Request_Type.selection_clear(0, 'end')
+        # self.List_Application_Type.selection_clear(0, 'end')
+        # self.List_Service_Type.selection_clear(0, 'end')
+        # self.List_Pyament_Type.selection_clear(0, 'end')
+        # self.List_Approver.selection_clear(0, 'end')
         self.Entry_purpuse.delete(0, 'end')
         self.cnic_front.set(0)
         self.cnic_back.set(0)
@@ -1090,7 +1092,7 @@ class dataentry(tk.Tk):
     def check_validations(self):
 
         if len(self.Entry_CNIC.get()) == 13:
-            if self.Entry_CNIC.get().isnumeric() == FALSE:
+            if self.Entry_CNIC.get().isnumeric() == False:
                 messagebox.showerror('showerror', 'CNIC is not numeric')
                 return 'invalid'
 
@@ -1244,7 +1246,8 @@ class dataentry(tk.Tk):
     def save(self):
         if self.check_validations() == 'invalid':
             return
-        if self.edit_mode == TRUE:
+        con, cur = open_con(True)
+        if self.edit_mode == True:
             Query = """Update Domicile Set CNIC=%s,
                                         Dom_date=%s,
                                         First_Name=%s,
@@ -1286,7 +1289,7 @@ class dataentry(tk.Tk):
                                         voter_list=%s,
                                         domicile_challan=%s,
                                         Process_Type=%s,
-                                        Approver_Desig=%s,
+                                        approver_id=(select approver_id from approvers where approver_name = %s),
                                         Purpuse=%s Where Dom_id = %s;"""
 
             parm_inputs = [self.Entry_CNIC.get(), f'{self.Record_Date.get()}', self.Entry_First_Name.get(), self.Entry_Father_Name.get(), self.Entry_Spouse_Name.get(), self.pre_Tehsil_id, self.pre_District_id, self.pres_Province_id, self.Entry_Present_Address.get(), self.prem_Tehsil_id, self.prem_District_id, self.prem_Province_id, self.Entry_Permenant_Address.get(), self.Entry_Placeofbirth.get(), self.Entry_Contact.get(), self.Entry_Date_of_Birth.get(), self.Entry_Arrival_Date.get(), self.Gender_Id, self.Religion, self.Marital_Status_Id, self.Qualification_Id, self.Occupation_Id, self.Application_Type_Id, self.Request_Type_Id, self.Service_Type_Id, self.Payment_Type_Id, self.cnic_front.get(), self.cnic_back.get(), self.cnic_guardian.get(), self.Residance_Prof.get(), self.utility_bill.get(), self.educational_certificate.get(), self.marriage_registration_certificate.get(), self.form_b.get(), self.domicile_of_guardian.get(), self.noc_from_concerned_district.get(), self.affidavit_domicile.get(), self.affidavit_voterlist.get(), self.voter_list.get(), self.domicile_challan.get(), self.List_Process_Type.get(self.List_Process_Type.curselection()), self.List_Approver.get(self.List_Approver.curselection()), self.Entry_purpuse.get(), self.rec_id]
@@ -1320,25 +1323,31 @@ class dataentry(tk.Tk):
                 return messagebox.showerror('Error', dup_check_status)
              
             process = 'Save'
+            if len(self.List_Approver.curselection()) ==1:
+                cur.execute("Select approver_id from approvers where approver_name = %s",[self.List_Approver.get(self.List_Approver.curselection())])
+                app_id_data = cur.fetchone()
+                app_id = app_id_data['approver_id']
+            else:
+                app_id = None
             Query = "Insert Into Domicile (Dom_date, Status, CNIC, First_Name, Father_Name, Spouse_Name, Pres_Tehsil, Pres_District, Pres_Province, Present_Address, Perm_Tehsil, Perm_District, Perm_Province, Permenant_Address, Placeofbirth, Contact, Date_of_Birth, Arrival_Date, Gender, Religon, Marital_Status, Qualification, Occupation, Application_Type, Request_Type, Service_Type, Payment_Type, cnic_front, cnic_back, cnic_guardian, Residance_Prof, utility_bill, educational_certificate, marriage_registration_certificate, form_b, domicile_of_guardian, noc_from_concerned_district, affidavit_domicile, affidavit_voterlist, voter_list, domicile_challan, Process_Type, Approver_Desig, Purpuse) values (%s, 'Pending', %s, %s, %s, %s, %s, %s, %s,%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
             parm_inputs = [self.Record_Date.get(), self.Entry_CNIC.get(), self.Entry_First_Name.get(
-            ), self.Entry_Father_Name.get(), self.Entry_Spouse_Name.get(), self.pre_Tehsil_id, self.pre_District_id, self.pres_Province_id, self.Entry_Present_Address.get(), self.prem_Tehsil_id, self.prem_District_id, self.prem_Province_id, self.Entry_Permenant_Address.get(), self.Entry_Placeofbirth.get(), self.Entry_Contact.get(), self.Entry_Date_of_Birth.get(), self.Entry_Arrival_Date.get(), self.Gender_Id, self.Religion, self.Marital_Status_Id, self.Qualification_Id, self.Occupation_Id, self.Application_Type_Id, self.Request_Type_Id, self.Service_Type_Id, self.Payment_Type_Id, self.cnic_front.get(), self.cnic_back.get(), self.cnic_guardian.get(), self.Residance_Prof.get(), self.utility_bill.get(), self.educational_certificate.get(), self.marriage_registration_certificate.get(), self.form_b.get(), self.domicile_of_guardian.get(), self.noc_from_concerned_district.get(), self.affidavit_domicile.get(), self.affidavit_voterlist.get(), self.voter_list.get(), self.domicile_challan.get(), self.List_Process_Type.get(self.List_Process_Type.curselection()), self.List_Approver.get(self.List_Approver.curselection()), self.Entry_purpuse.get()]
+            ), self.Entry_Father_Name.get(), self.Entry_Spouse_Name.get(), self.pre_Tehsil_id, self.pre_District_id, self.pres_Province_id, self.Entry_Present_Address.get(), self.prem_Tehsil_id, self.prem_District_id, self.prem_Province_id, self.Entry_Permenant_Address.get(), self.Entry_Placeofbirth.get(), self.Entry_Contact.get(), self.Entry_Date_of_Birth.get(), self.Entry_Arrival_Date.get(), self.Gender_Id, self.Religion, self.Marital_Status_Id, self.Qualification_Id, self.Occupation_Id, self.Application_Type_Id, self.Request_Type_Id, self.Service_Type_Id, self.Payment_Type_Id, self.cnic_front.get(), self.cnic_back.get(), self.cnic_guardian.get(), self.Residance_Prof.get(), self.utility_bill.get(), self.educational_certificate.get(), self.marriage_registration_certificate.get(), self.form_b.get(), self.domicile_of_guardian.get(), self.noc_from_concerned_district.get(), self.affidavit_domicile.get(), self.affidavit_voterlist.get(), self.voter_list.get(), self.domicile_challan.get(), self.List_Process_Type.get(self.List_Process_Type.curselection()), app_id, self.Entry_purpuse.get()]
             self.binaryfile = None
         print(f'Procceding {process}')
-        con, cur = open_con(True)
+        
         cur.execute(Query, parm_inputs)
         con.commit()
-        if self.edit_mode == TRUE:
-            Query = "Insert into dataentry_history (rec_id, his_status, timestamp) values (%s, 'Updated', CURRENT_TIMESTAMP);"
-            cur.execute(Query, [self.rec_id])
+        if self.edit_mode == True:
+            Query = "Insert into dataentry_history (rec_id, user_id, his_status, timestamp) values (%s, %s, 'Updated', CURRENT_TIMESTAMP);"
+            cur.execute(Query, [self.rec_id, self.user_data['user_id']])
             con.commit()
         else:
             cur.execute('Select LAST_INSERT_ID();')
             last_id = cur.fetchone()['LAST_INSERT_ID()']
-            Query = "Insert into dataentry_history (rec_id, his_status, timestamp) values (%s, 'Created', CURRENT_TIMESTAMP);"
-            cur.execute(Query, [last_id])
+            Query = "Insert into dataentry_history (rec_id, user_id, his_status, timestamp) values (%s, %s, 'Created', CURRENT_TIMESTAMP);"
+            cur.execute(Query, [last_id, self.user_data['user_id']])
             con.commit()
-        if self.edit_mode == TRUE:
+        if self.edit_mode == True:
             if len(self.child_addition_list) != 0:
                 child_count = 0
                 for items in self.child_addition_list:
@@ -1389,13 +1398,13 @@ class dataentry(tk.Tk):
             self.child_data_list = []
         cur.execute('Select dom_id from domicile order by dom_id desc limit 1;')
         last_rec = cur.fetchall()
-        if self.binaryfile is not None and self.edit_mode == FALSE:
+        if self.binaryfile is not None and self.edit_mode == False:
             
             cur.execute(
                 "Insert Into pictures (Dom_Id, Pic) values(%s, %s)", (last_rec[0][0], self.binaryfile))
             con.commit()
             
-        elif self.binaryfile is not None and self.edit_mode == TRUE:
+        elif self.binaryfile is not None and self.edit_mode == True:
             cur.execute(
                 "Select Pic_id from pictures Where Dom_id = %s", [self.rec_id])
             data = cur.fetchall()
@@ -1407,7 +1416,7 @@ class dataentry(tk.Tk):
                     "Update pictures set Pic= %s where Dom_id = %s;", (self.binaryfile, self.rec_id))
             con.commit()
 
-        if self.edit_mode == TRUE:
+        if self.edit_mode == True:
             messagebox.showinfo(
                 'showinfo', 'Record No {} Updated'.format(self.rec_id))
         else:
@@ -1418,13 +1427,14 @@ class dataentry(tk.Tk):
         con.close()
         self.binaryfile = None
         self.clear_widgets()
-        self.edit_mode = FALSE
+        self.edit_mode = False
         self.save_button.config(text='Save')
         self.Add_Ch_button.config(text='Add Childerns')
         self.cnic_dup_check = False
     def show_history(self):
+        self.Record_Selector()
         window = Toplevel()
-        window.geometry("350x400")
+        window.geometry("500x400")
         label_frame = Frame(window)
         label_frame.pack(fill='x')
         main_frame = Frame(window)
@@ -1432,8 +1442,7 @@ class dataentry(tk.Tk):
         top_label = Label(label_frame, text='History', anchor='center', font=('Courier', 14))
         top_label.pack(fill='x')
         his_list = Listbox(main_frame, height=20, width=80, exportselection=0, font=('Courier', 14))
-        his_list.grid(row=0, column=0)
-        print(self.rec_id)
+        his_list.grid(row=0, column=0, ipadx=10)
         if self.rec_id is None: 
             pass
         elif self.rec_id ==0:
@@ -1443,13 +1452,18 @@ class dataentry(tk.Tk):
             if type(cur) is str:
                 return messagebox.showerror('Connection Error', 'Unable to Connect to Db')
             
-            Query = "Select h.his_status, h.timestamp from dataentry_history as h Join domicile as d on h.rec_id = d.dom_id where d.dom_id = %s;"
+            Query = """Select h.his_status, h.timestamp, u.user_name 
+                    from dataentry_history as h 
+                    Join domicile as d 
+                    on h.rec_id = d.dom_id
+                    Left Join users as u
+                    on h.user_id = u.user_id 
+                    where d.dom_id = %s;"""
             cur.execute(Query, [self.rec_id])
             data = cur.fetchall()
-            print(data)
             a = 0
             for row in data:
-                his_list.insert(a, f"{row['his_status']} on {row['timestamp']}")
+                his_list.insert(a, f"{row['his_status']} on {row['timestamp']} by {row['user_name']}")
                 a += 1
             con.close()
             cur.close()
@@ -1475,7 +1489,7 @@ class dataentry(tk.Tk):
 
     def add_Childerns(self):
 
-        top_level = tk.Toplevel(self)
+        top_level = Toplevel(self)
         top_level.geometry('550x580+100+100')
         child_theme_style = ttk.Style(top_level)
         child_theme_style.configure('TButton', font=self.button_font)
@@ -1487,27 +1501,27 @@ class dataentry(tk.Tk):
         child_theme_style.configure(
             "Treeview.Heading", font=self.treeview_heading_font)
         top_frame = ttk.Frame(top_level)
-        top_frame.pack(fill=X)
+        top_frame.pack(fill='x')
         middle_frame = ttk.Frame(top_level)
-        middle_frame.pack(fill=BOTH, expand=TRUE)
+        middle_frame.pack(fill='both', expand=True)
         bottom_frame = ttk.Frame(top_level)
-        bottom_frame.pack(fill=X)
+        bottom_frame.pack(fill='x')
         child_cnic_label = ttk.Label(
             top_frame, text='Child CNIC', font=self.label_font)
-        child_cnic_label.grid(column=0, row=0, padx=10, pady=10, sticky=W)
+        child_cnic_label.grid(column=0, row=0, padx=10, pady=10, sticky='w')
         self.child_cnic_entry = ttk.Entry(top_frame, font=self.entry_font)
         self.child_cnic_entry.grid(column=1, row=0, padx=10)
         # self.child_cnic_entry.bind('<Tab>', self.)
         child_name_label = ttk.Label(
             top_frame, text='Child Name', font=self.label_font)
-        child_name_label.grid(column=0, row=1, padx=10, pady=10, sticky=W)
+        child_name_label.grid(column=0, row=1, padx=10, pady=10, sticky='w')
         child_name_entry = ttk.Entry(top_frame, font=self.entry_font)
         child_name_entry.grid(column=1, row=1, padx=10)
 
         child_gender_label = ttk.Label(
             top_frame, text='Child Gender', font=self.label_font)
-        child_gender_label.grid(column=0, row=2, padx=10, pady=5, sticky=W)
-        child_gender_list = tk.Listbox(
+        child_gender_label.grid(column=0, row=2, padx=10, pady=5, sticky='w')
+        child_gender_list = Listbox(
             top_frame, exportselection=0, height=1, font=self.list_font)
         child_gender_list.grid(column=1, row=2, padx=10)
         child_gender_list.insert(1, "Male")
@@ -1517,7 +1531,7 @@ class dataentry(tk.Tk):
         child_gender_list.bind('<KeyPress>', self.select_keysym_value)
         child_dob_label = ttk.Label(
             top_frame, text='Date of Birth', font=self.label_font)
-        child_dob_label.grid(column=0, row=3, padx=10, sticky=W)
+        child_dob_label.grid(column=0, row=3, padx=10, sticky='w')
 
         def add_Child(*arg):
 
@@ -1648,7 +1662,7 @@ class dataentry(tk.Tk):
         trv.heading("1", text="Child Name", anchor='w')
         trv.heading("2", text="Date of Birth", anchor='w')
 
-        if self.edit_mode == TRUE:
+        if self.edit_mode == True:
             for row in self.child_old_data:
                 trv.insert("", 'end',
                            values=(row['Child_Name'], row['Child_dob']))
@@ -1675,7 +1689,7 @@ class dataentry(tk.Tk):
         self.insert_switch = ttk.Checkbutton(bottom_frame, text="Childerns are also domicile applicants", variable=self.child_insert_chk, onvalue=1, offvalue=0)
         self.insert_switch.grid(
             column=1, row=0, columnspan=3, padx=10, pady=5)
-        if self.edit_mode == TRUE:
+        if self.edit_mode == True:
             self.insert_switch.config(state='disable')
 
         Add_Btn = ttk.Button(bottom_frame, command=add_Child,
@@ -1782,7 +1796,7 @@ class dataentry(tk.Tk):
             pdf.cell(40, 8, 'Permenant Address')
             pdf.cell(150, 8, row['Permenant_Address'])
             pdf.ln(24)
-            pdf.multi_cell(0, 7, 'I hereby declare that the details furnished above are true and correct to the best of my knowledge and belief and iundertake to inform you of any changes therein, immediately. In case of any of the above information in found to be false or untrue or misleading or misrepresenting. I am aware that I may be held liable for it')
+            pdf.multi_cell(0, 7, 'I hereby declare that the details furnished above are True and correct to the best of my knowledge and belief and iundertake to inform you of any changes therein, immediately. In case of any of the above information in found to be False or unTrue or misleading or misrepresenting. I am aware that I may be held liable for it')
             pdf.ln(16)
             pdf.cell(100, 8, 'Domicile Clerk Signature_________________')
 
@@ -1830,7 +1844,7 @@ class dataentry(tk.Tk):
             else:
                 messagebox.showinfo('showinfo', 'No Records Found')
                 export_window.focus_set()
-        export_window = tk.Toplevel()
+        export_window = Toplevel()
         export_window.geometry('400x220+100+100')
         # export_window.configure(bg='#24304a')
         date_label = ttk.Label(
@@ -1945,7 +1959,7 @@ class dataentry(tk.Tk):
         self.edit_window.title('Record Selection')
         # self.edit_window.configure(bg='#24304a')
         Top_Frame = Frame(self.edit_window)  # bg='#24304a'
-        Top_Frame.pack(fill=X)
+        Top_Frame.pack(fill='x')
         query_dict = {'ID': 'Dom_id', 'Date': 'Dom_Date', 'Status': 'Status', 'CNIC': 'CNIC', 'Name': 'First_Name',
                       'Father Name': 'Father_Name', 'Contact': 'Contact', 'Date of Birth': 'Date_of_Birth'}
         list_values = []
@@ -1961,13 +1975,13 @@ class dataentry(tk.Tk):
         search_input.grid(row=1, column=1, padx=10, pady=10)
         search_input.bind('<Return>', Search)
         Bottom_Frame = Frame(self.edit_window)  # bg='#24304a'
-        Bottom_Frame.pack(fill=X, expand=1)
+        Bottom_Frame.pack(fill='x', expand=1)
         trv_font = ttk.Style(self.edit_window)
         trv_font.configure('TButton', font=self.button_font)
         trv_font.configure('Treeview', font=('Courier', 12))
         trv_font.configure('Treeview.Heading', font=('Courier', 12, 'bold'))
         trv = ttk.Treeview(Bottom_Frame, selectmode='browse', height=15)
-        trv.pack(fill=BOTH, expand=TRUE, padx=10, pady=10)
+        trv.pack(fill='both', expand=True, padx=10, pady=10)
         trv["columns"] = ("1", "2", "3", "4", "5", "6", "7", "8")
         trv['show'] = 'headings'
         trv.column("1", width=50, anchor='w')
@@ -2001,24 +2015,24 @@ class dataentry(tk.Tk):
         self.edit_window.mainloop()
 
 
-class Sysentry(tk.Tk):
+class Sysentry(Tk):
     def __init__(self):
         super().__init__()
         self.geometry('1100x800+50+50')
-        self.tk.call('source', 'azure.tcl')
-        self.tk.call('set_theme', 'light')
+        self.call('source', 'azure.tcl')
+        self.call('set_theme', 'light')
         self.Top_Frame = ttk.Frame(
-            self, relief=RIDGE)
-        self.Top_Frame.pack(fill=X)
+            self, relief='ridge')
+        self.Top_Frame.pack(fill='x')
         self.Middle_Frame = ttk.Frame(
-            self, relief=RIDGE)
-        self.Middle_Frame.pack(fill=X)
+            self, relief='ridge')
+        self.Middle_Frame.pack(fill='x')
         self.Bottom_Frame = ttk.Frame(
-            self, relief=RIDGE, border=1, height=10)
-        self.Bottom_Frame.pack(fill=BOTH, expand=YES)
+            self, relief='ridge', border=1, height=10)
+        self.Bottom_Frame.pack(fill='both', expand=True)
         self.Top_label = ttk.Label(
             self.Top_Frame, text='Javascript Generator', border=1, font=('Courier', 18, 'bold'))
-        self.Top_label.pack(padx=10, pady=10, side=TOP)
+        self.Top_label.pack(padx=10, pady=10, side='top')
         sys_style = ttk.Style()
         # sys_style.theme_use('classic')
         sys_style.configure('TButton', font=('Courier', 12, 'bold'))
@@ -2082,7 +2096,7 @@ class Sysentry(tk.Tk):
         if event.keysym == 'Return':
             self.generate()
             self.Js_Text.focus_set()
-            self.Js_Text.tag_add(SEL, "1.0", END)
+            self.Js_Text.tag_add(SEL, "1.0", 'end')
             self.Js_Text.mark_set(INSERT, "1.0")
             self.Js_Text.see(INSERT)
             return 'break'
@@ -2092,9 +2106,9 @@ class Sysentry(tk.Tk):
 
     def Converit_Boolean(self, val):
         if val == 0:
-            return 'false'
+            return 'False'
         elif val == -1:
-            return 'true'
+            return 'True'
 
     def save_pic(self, pic_data, filename):
         filename = "Pictures\pic_" + str(filename) + ".jpg"
@@ -2180,157 +2194,157 @@ class Sysentry(tk.Tk):
         for row in data:
             txt = "document.getElementById('first_name').value = '{}';".format(
                 row["First_Name"])
-            self.Js_Text.insert(tk.END, txt + '\n')
+            self.Js_Text.insert('end', txt + '\n')
             # txt = "document.getElementById('last_name').value = '{}';".format(
             #     row['Last_Name'])
-            # self.Js_Text.insert(tk.END, txt + '\n')
+            # self.Js_Text.insert('end', txt + '\n')
             txt = "document.getElementById('cnic').value = '{}';".format(
                 row['CNIC'])
-            self.Js_Text.insert(tk.END, txt + '\n')
+            self.Js_Text.insert('end', txt + '\n')
             txt = "document.getElementById('place_of_birth').value = '{}';".format(
                 row['Placeofbirth'])
-            self.Js_Text.insert(tk.END, txt + '\n')
+            self.Js_Text.insert('end', txt + '\n')
             txt = "document.getElementById('father_name').value = '{}';".format(
                 row['Father_Name'])
-            self.Js_Text.insert(tk.END, txt + '\n')
+            self.Js_Text.insert('end', txt + '\n')
             txt = "document.getElementById('spouse_name').value = '{}';".format(
                 row['Spouse_Name'])
-            self.Js_Text.insert(tk.END, txt + '\n')
+            self.Js_Text.insert('end', txt + '\n')
             txt = "document.getElementById('temp_address').value = '{}';".format(
                 row['Present_Address'])
-            self.Js_Text.insert(tk.END, txt + '\n')
+            self.Js_Text.insert('end', txt + '\n')
             txt = "document.getElementById('temp_province_id').value = '{}';".format(
                 row['Pres_Province'])
-            self.Js_Text.insert(tk.END, txt + '\n')
+            self.Js_Text.insert('end', txt + '\n')
             txt = "document.getElementById('temp_district_id').value = '{}';".format(
                 row['Pres_District'])
-            self.Js_Text.insert(tk.END, txt + '\n')
+            self.Js_Text.insert('end', txt + '\n')
             txt = "document.getElementById('temp_tehsil_id').value = '{}';".format(
                 row['Pres_Tehsil'])
-            self.Js_Text.insert(tk.END, txt + '\n')
+            self.Js_Text.insert('end', txt + '\n')
             txt = "document.getElementById('permanent_address').value = '{}';".format(
                 row['Permenant_Address'])
-            self.Js_Text.insert(tk.END, txt + '\n')
+            self.Js_Text.insert('end', txt + '\n')
             txt = "document.getElementById('permanent_province_id').value = '{}';".format(
                 row['Perm_Province'])
-            self.Js_Text.insert(tk.END, txt + '\n')
+            self.Js_Text.insert('end', txt + '\n')
             txt = "document.getElementById('permanent_district_id').value = '{}';".format(
                 row['Perm_District'])
-            self.Js_Text.insert(tk.END, txt + '\n')
+            self.Js_Text.insert('end', txt + '\n')
             txt = "document.getElementById('permanent_tehsil_id').value = '{}';".format(
                 row['Perm_Tehsil'])
-            self.Js_Text.insert(tk.END, txt + '\n')
+            self.Js_Text.insert('end', txt + '\n')
             txt = "document.getElementById('contact').value = '{}';".format(
                 row['Contact'])
-            self.Js_Text.insert(tk.END, txt + '\n')
+            self.Js_Text.insert('end', txt + '\n')
             txt = "document.getElementById('date_of_birth').value = '{}';".format(
                 row['Date_of_Birth'])
-            self.Js_Text.insert(tk.END, txt + '\n')
+            self.Js_Text.insert('end', txt + '\n')
             txt = "document.getElementById('arrival_date').value = '{}';".format(
                 row['Arrival_Date'])
-            self.Js_Text.insert(tk.END, txt + '\n')
+            self.Js_Text.insert('end', txt + '\n')
             txt = "document.getElementById('gender_id').value = '{}';".format(
                 row['Gender'])
-            self.Js_Text.insert(tk.END, txt + '\n')
+            self.Js_Text.insert('end', txt + '\n')
             txt = "document.getElementById('religion').value = '{}';".format(
                 row['Religon'])
-            self.Js_Text.insert(tk.END, txt + '\n')
+            self.Js_Text.insert('end', txt + '\n')
             txt = "document.getElementById('marital_status_id').value = '{}';".format(
                 row['Marital_Status'])
-            self.Js_Text.insert(tk.END, txt + '\n')
+            self.Js_Text.insert('end', txt + '\n')
             txt = "document.getElementById('qualification_id').value = '{}';".format(
                 row['Qualification'])
-            self.Js_Text.insert(tk.END, txt + '\n')
+            self.Js_Text.insert('end', txt + '\n')
             txt = "document.getElementById('occupation_id').value = '{}';".format(
                 row['Occupation'])
-            self.Js_Text.insert(tk.END, txt + '\n')
+            self.Js_Text.insert('end', txt + '\n')
             txt = "document.getElementById('applicant_type_id').value = '{}';".format(
                 row['Application_Type'])
-            self.Js_Text.insert(tk.END, txt + '\n')
+            self.Js_Text.insert('end', txt + '\n')
             txt = "document.getElementById('request_type_id').value = '{}';".format(
                 row['Request_Type'])
-            self.Js_Text.insert(tk.END, txt + '\n')
+            self.Js_Text.insert('end', txt + '\n')
             txt = "document.getElementById('service_type_id').value = '{}';".format(
                 row['Service_Type'])
-            self.Js_Text.insert(tk.END, txt + '\n')
+            self.Js_Text.insert('end', txt + '\n')
             txt = "document.getElementById('payment_type_id').value = '{}';".format(
                 row['Payment_Type'])
-            self.Js_Text.insert(tk.END, txt + '\n')
+            self.Js_Text.insert('end', txt + '\n')
             txt = "document.getElementById('docs-cnic-front').checked = {};".format(
                 self.Converit_Boolean(row['cnic_front']))
-            self.Js_Text.insert(tk.END, txt + '\n')
+            self.Js_Text.insert('end', txt + '\n')
 
             txt = "document.getElementById('docs[cnic_back]').checked = {};".format(
                 self.Converit_Boolean(row['cnic_back']))
-            self.Js_Text.insert(tk.END, txt + '\n')
+            self.Js_Text.insert('end', txt + '\n')
             txt = "document.getElementById('docs[cnic_guardian]').checked = {};".format(
                 self.Converit_Boolean(row['cnic_guardian']))
-            self.Js_Text.insert(tk.END, txt + '\n')
+            self.Js_Text.insert('end', txt + '\n')
             txt = "document.getElementById('docs[proof_of_residence]').checked = {};".format(
                 self.Converit_Boolean(row['Residance_Prof']))
-            self.Js_Text.insert(tk.END, txt + '\n')
+            self.Js_Text.insert('end', txt + '\n')
             txt = "document.getElementById('docs[utility_bill]').checked = {};".format(
                 self.Converit_Boolean(row['utility_bill']))
-            self.Js_Text.insert(tk.END, txt + '\n')
+            self.Js_Text.insert('end', txt + '\n')
             txt = "document.getElementById('docs[educational_certificate]').checked = {};".format(
                 self.Converit_Boolean(row['educational_certificate']))
-            self.Js_Text.insert(tk.END, txt + '\n')
+            self.Js_Text.insert('end', txt + '\n')
             txt = "document.getElementById('docs[marriage_registration_certificate]').checked = {};".format(
                 self.Converit_Boolean(row['marriage_registration_certificate']))
-            self.Js_Text.insert(tk.END, txt + '\n')
+            self.Js_Text.insert('end', txt + '\n')
             txt = "document.getElementById('docs[form_b]').checked = {};".format(
                 self.Converit_Boolean(row['form_b']))
 
-            self.Js_Text.insert(tk.END, txt + '\n')
+            self.Js_Text.insert('end', txt + '\n')
             txt = "document.getElementById('docs[domicile_of_guardian]').checked = {};".format(
                 self.Converit_Boolean(row['domicile_of_guardian']))
 
-            self.Js_Text.insert(tk.END, txt + '\n')
+            self.Js_Text.insert('end', txt + '\n')
             txt = "document.getElementById('docs[noc_from_concerned_district]').checked = {};".format(
                 self.Converit_Boolean(row['noc_from_concerned_district']))
 
-            self.Js_Text.insert(tk.END, txt + '\n')
+            self.Js_Text.insert('end', txt + '\n')
             txt = "document.getElementById('docs[affidavit_domicile]').checked = {};".format(
                 self.Converit_Boolean(row['affidavit_domicile']))
 
-            self.Js_Text.insert(tk.END, txt + '\n')
+            self.Js_Text.insert('end', txt + '\n')
             txt = "document.getElementById('docs[affidavit_voterlist]').checked = {};".format(
                 self.Converit_Boolean(row['affidavit_voterlist']))
 
-            self.Js_Text.insert(tk.END, txt + '\n')
+            self.Js_Text.insert('end', txt + '\n')
             txt = "document.getElementById('docs[voter_list]').checked = {};".format(
                 self.Converit_Boolean(row['voter_list']))
 
-            self.Js_Text.insert(tk.END, txt + '\n')
+            self.Js_Text.insert('end', txt + '\n')
             txt = "document.getElementById('docs[domicile_challan]').checked = {};".format(
                 self.Converit_Boolean(row['domicile_challan']))
 
-            self.Js_Text.insert(tk.END, txt + '\n')
+            self.Js_Text.insert('end', txt + '\n')
 
             vari = 97
             cnt = 0
             if len(data) != 0:
-                self.Js_Text.insert(tk.END, txt + '\n')
+                self.Js_Text.insert('end', txt + '\n')
                 txt = "var check_click = document.getElementsByClassName('input-span');"
-                self.Js_Text.insert(tk.END, txt + '\n')
+                self.Js_Text.insert('end', txt + '\n')
                 txt = "check_click[0].click();"
-                self.Js_Text.insert(tk.END, txt + '\n')
+                self.Js_Text.insert('end', txt + '\n')
             for row in child_data:
                 txt = "var {} = document.getElementsByName('children[{}][first_name]');".format(
                     chr(vari), cnt)
-                self.Js_Text.insert(tk.END, txt + '\n')
+                self.Js_Text.insert('end', txt + '\n')
                 txt = chr(vari) + "[0].value = '" + \
                     row["Child_Name"] + "';"
-                self.Js_Text.insert(tk.END, txt + '\n')
+                self.Js_Text.insert('end', txt + '\n')
                 var = vari + 1
                 txt = "var {} = document.getElementsByName('children[".format(chr(vari)) + str(
                     "{}".format(cnt)) + "][date_of_birth]');"
-                self.Js_Text.insert(tk.END, txt + '\n')
+                self.Js_Text.insert('end', txt + '\n')
                 txt = chr(vari) + \
                     "[0].value = '{}';".format(row["Child_dob"])
-                self.Js_Text.insert(tk.END, txt + '\n')
+                self.Js_Text.insert('end', txt + '\n')
                 txt = "document.getElementById('addRowButton').click();"
-                self.Js_Text.insert(tk.END, txt + '\n')
+                self.Js_Text.insert('end', txt + '\n')
                 cnt = cnt + 1
                 vari = vari + 1
 
@@ -2338,34 +2352,34 @@ class Sysentry(tk.Tk):
         self.Js_Text.delete('1.0', 'end')
 
 
-class Collection_Report(tk.Tk):
+class Collection_Report(Tk):
     def __init__(self):
         super().__init__()
         path = os.getcwd()
         path = path+r"\theme"
-        self.tk.call('source', 'azure.tcl')
-        self.tk.call('set_theme', 'light')
+        self.call('source', 'azure.tcl')
+        self.call('set_theme', 'light')
         self.geometry('500x200')
         col_style = ttk.Style(self)
         self.title('Report')
         self.label_font = ('Courier New', 12, 'bold')
-        self.Label_Main = tk.Label(
+        self.Label_Main = Label(
             self, text='Daily Domicile Collection Report', width=40, height=2, font=self.label_font)
         self.Label_Main.pack()
-        self.Label_Date = tk.Label(
+        self.Label_Date = Label(
             self, text='Collection Date', font=self.label_font)
         self.Label_Date.place(x=50, y=50)
 
-        self.Entry_Date = tk.Entry(self, font=self.label_font)
+        self.Entry_Date = Entry(self, font=self.label_font)
         self.Entry_Date.bind(
             '<Return>', lambda event: Report(self.Entry_Date.get()))
         self.Entry_Date.insert(0, datetime.date(datetime.today()))
         self.Entry_Date.place(x=220, y=50)
-        self.Label_Date = tk.Label(
+        self.Label_Date = Label(
             self, text='Calling Days', font=self.label_font)
         self.Label_Date.place(x=50, y=100)
 
-        self.Entry_Days = tk.Entry(self, font=self.label_font)
+        self.Entry_Days = Entry(self, font=self.label_font)
         self.Entry_Days.insert(0, "3")
         self.Entry_Days.place(x=220, y=100)
         self.Rpt_btn = ttk.Button(self, text='Report', width=15,
@@ -2433,7 +2447,8 @@ class Collection_Report(tk.Tk):
 if __name__ == '__main__':
     # obj = dataentry('25.33.21.56')
     # obj.mainloop()
-    obj = dataentry()
+    user_data = {'user_id':3}
+    obj = dataentry(user_data)
     obj.mainloop()
     # obj = Collection_Report('25.48.184.239')
     # obj.mainloop()

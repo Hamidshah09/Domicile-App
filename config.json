@@ -1,1 +1,9 @@
-{"server_1": "192.168.18.21", "server_2": "25.33.21.56", "service":"local network", "font_name":"Courier", "theme_source":"azure.tcl", "theme_mode":"light"}
+{
+  "server_2": "192.168.18.21",
+  "server_1": "192.168.18.21",
+  "service": "local network",
+  "font_name": "Courier",
+  "theme_source": "azure.tcl",
+  "theme_mode": "light",
+  "nitb_login": "hamidshah09@gmail.com"
+}

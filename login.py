@@ -1,214 +1,250 @@
-from tkinter import Tk, Label, Frame, Entry, Button, messagebox, ttk, PhotoImage, Toplevel
-import tkinter as tk
+import json
+from bs4 import BeautifulSoup
+import requests
 from tools import open_con
-from PIL import Image, ImageTk
+from tkinter import Listbox, Tk, Toplevel, ttk, messagebox
 
-
-class Login_form():
+class Login():
     def __init__(self):
         self.root = Tk()
-        self.root.geometry("800x685+300+0")
+        left = int((self.root.winfo_screenwidth() / 2) -200)
+        top = int((self.root.winfo_screenheight() / 2) -170)
         self.root.title("Login")
-        self.root.resizable(False, False)
-        img = Image.open(r'Pictures/back_ground.jpg')
-        # img_resize = img.resize((800, 600))
-        final_image = ImageTk.PhotoImage(img)
-        # self.bgpic = PhotoImage(
-        #     file=r'back_ground.png', master=self.root)
-        self.btn_font = ('Century Gothic', 12)
+        self.root.geometry(f"400x300+{left}+{top}")
+        self.login_status = False
+        self.session_status = False
+        self.app_style = ttk.Style(master=self.root)
+        self.app_style.configure("Main.TLabel", font=('Century Gothic', 14, 'bold'))
+        self.app_style.configure("TLabel", font=('Century Gothic', 12, 'bold'))
+        self.app_style.configure("TButton", font=('Century Gothic', 12), width=30)
+    def login(self):    
+        self.top_label = ttk.Label(self.root, text='Login', anchor='center', style="Main.TLabel")
+        self.top_label.pack(fill='x', padx=5, pady=10, ipadx=10)
+        self.widget_frame = ttk.Frame(self.root)
+        self.widget_frame.pack(fill='both', expand=True)
 
-        
-        self.main_label = Label(self.root, image=final_image)
-        self.main_label.image = final_image
-        self.main_label.pack(fill='both', expand=True)
-        update_pass_image = PhotoImage(
-            file=r'Pictures/update_pass.png', master=self.root)
-        self.update_label = Label(self.main_label, image=update_pass_image)
-        self.update_label.image = update_pass_image
-        self.update_label.place(x=550, y=10)
-        self.update_label.bind('<Button 1>', self.change_pass)
+        self.user_label = ttk.Label(self.widget_frame, text='Login ID')
+        self.user_label.grid(row=0, column=0, padx=60, pady='5 0', sticky='sw')
+        self.user_entry = ttk.Entry(self.widget_frame, font=('Century Gothic', 12), width=30)
+        self.user_entry.grid(row=1, column=0, padx=60, pady='0 5',ipady=5)
 
-        self.login_status = ""
-        self.login_data = ""
-        # self.user_login_label = Label(
-        #     self.main_label, text='User Login', font=('Century Gothic', 12))
-        # self.user_login_label.grid(
-        #     row=0, column=0, padx=10, pady=10, sticky=tk.W)
-        self.user_login_entry = Entry(
-            self.main_label, bg='#D2D2D2',  bd=0, font=('Century Gothic', 14))
-        self.user_login_entry.place(x=280, y=305)
-        
-        # self.user_password_label = Label(
-        #     self.main_label, text='User password', font=('Century Gothic', 12))
-        # self.user_password_label.grid(
-        #     row=1, column=0, padx=10, pady=10, sticky=tk.W)
-        self.user_password_entry = Entry(
-            self.main_label, show='*', bg='#D2D2D2',  bd=0, font=('Century Gothic', 14))
-        self.user_password_entry.place(x=280, y=385)
-        self.user_password_entry.bind('<Return>', self.login)
-        self.user_password_entry.insert(0, '12345')
-        # img1 = Image.open(r'images\EXPn2.png')
-        # img2 = ImageTk.PhotoImage(img1)
-        self.btn_img = PhotoImage(
-            file=r'Pictures/login_button.png', master=self.root)
-        # self.btn_img_hr = PhotoImage(
-        #     file=r'images\login_hr.png', master=self.root)
-        # self.cur_img = self.btn_img
-        # self.pass_button = Button(
-        #     self.main_label, image=self.btn_img, relief='solid', bd=0, font=('Century Gothic', 12), command=self.login)
-        # self.pass_button.image = self.btn_img
-        # self.pass_button.place(x=560, y=480)
-        self.label_btn = Label(
-            self.main_label, image=self.btn_img, bd=0, borderwidth=0, font=('Century Gothic', 12))
-        self.label_btn.place(x=190, y=440)
-        self.label_btn.bind('<Button 1>', self.login)
+        self.password_label = ttk.Label(self.widget_frame, text='Password')
+        self.password_label.grid(row=2, column=0, padx=60, pady='5 0', sticky='sw')
+        self.password_entry = ttk.Entry(self.widget_frame, show='*', font=('Century Gothic', 12), width=30)
+        self.password_entry.grid(row=3, column=0, padx=60, pady='0 5', ipady=5)
+        self.password_entry.bind('<Return>', self.submit_login)
 
-        # self.label_btn.bind('<Enter>', self.hover)
-        # self.label_btn.bind('<Leave>', self.normal)
-        # self.label_btn.image = self.cur_img
-        self.user_login_entry.focus()
+        self.login_btn = ttk.Button(self.widget_frame, text='Login', command=self.submit_login)
+        self.login_btn.grid(row=4, column=0, padx=60, pady=10, ipady=5)
+        try:
+            with open('username.txt', 'r') as f:
+                uname = f.read()
+                self.user_entry.insert(0, uname)
+        except Exception:
+            pass
+    def change_password(self, userlogin):
+        change_pass_window = Toplevel()
+        left = int((change_pass_window.winfo_screenwidth() / 2) -200)
+        top = int((change_pass_window.winfo_screenheight() / 2) -200)
+        change_pass_window.title("Login")
+        change_pass_window.geometry(f"400x450+{left}+{top}")
+        app_style = ttk.Style(master=change_pass_window)
+        app_style.configure("Main.TLabel", font=('Century Gothic', 14, 'bold'))
+        app_style.configure("TLabel", font=('Century Gothic', 12, 'bold'))
+        app_style.configure("TButton", font=('Century Gothic', 12), width=30)
+        top_label = ttk.Label(change_pass_window, text='Update Password', anchor='center', style="Main.TLabel")
+        top_label.pack(fill='x', padx=5, pady=10, ipadx=10)
+        widget_frame = ttk.Frame(change_pass_window)
+        widget_frame.pack(fill='both', expand=True)
 
-        # exit_btn_img = PhotoImage(
-        #     file=r'C:\Users\Hamid Shah\Desktop\login_btn.png', master=self.root)
-        # exit_btn = Label(
-        #     self.main_label, image=self.exit_btn_img, bd=0, borderwidth=0, font=('Century Gothic', 12))
-        # exit_btn.place(x=565, y=500)
-        # exit_btn.bind('<Button 1>', self.exit_)
-        # self.exit_btn.image = self.exit_btn_img
-        # self.cancil_button = Button(
-        #     self.main_label, text='Cancil', width=15, font=('Century Gothic', 12), command=self.root.destroy)
-        # self.cancil_button.grid(row=2, column=1, padx=10, pady=10)
-    #     self.root.after(1000, self.resizer)
-        # self.exit_label_btn = Label(
-        #     self.main_label, bd=0, borderwidth=0, font=('Century Gothic', 12))
-        # self.exit_label_btn.place(x=560, y=500)
-        # self.exit_label_btn.bind('<Button 1>', self.root.destroy)
-    # def resizer(self):
-    #     # print(event.width, event.height)
-    #     self.resized_img = self.img.resize((event.width, event.height))
-    #     self.new_img = ImageTk.PhotoImage(self.resized_img)
-    #     self.main_label.config(image=self.new_img)
+        user_label = ttk.Label(widget_frame, text='Login ID')
+        user_label.grid(row=0, column=0, padx=60, pady='5 0', sticky='sw')
+        user_entry = ttk.Entry(widget_frame, font=('Century Gothic', 12), width=30)
+        user_entry.grid(row=1, column=0, padx=60, pady='0 5',ipady=5)
+        user_entry.insert(0, userlogin)
+        user_entry.config(state='readonly')
 
-    # def hover(self, event):
-    #     self.label_btn.config(image=self.btn_img_hr)
-    #     self.cur_img = self.btn_img_hr
-    #     self.label_btn.image = self.cur_img
-    #     return
+        password_label = ttk.Label(widget_frame, text='Old Password')
+        password_label.grid(row=2, column=0, padx=60, pady='5 0', sticky='sw')
+        password_entry = ttk.Entry(widget_frame, show='*', font=('Century Gothic', 12), width=30)
+        password_entry.grid(row=3, column=0, padx=60, pady='0 5', ipady=5)
 
-    # def normal(self, event):
-    #     self.label_btn.config(image=self.btn_img)
-    #     self.cur_img = self.btn_img
-    #     self.label_btn.image = self.cur_img
+        password1_label = ttk.Label(widget_frame, text='New Password')
+        password1_label.grid(row=4, column=0, padx=60, pady='5 0', sticky='sw')
+        password1_entry = ttk.Entry(widget_frame, show='*', font=('Century Gothic', 12), width=30)
+        password1_entry.grid(row=5, column=0, padx=60, pady='0 5', ipady=5)
 
-    #     return
-    def exit_(self, event):
-        self.root.destroy()
+        password2_label = ttk.Label(widget_frame, text='Confirm Password')
+        password2_label.grid(row=6, column=0, padx=60, pady='5 0', sticky='sw')
+        password2_entry = ttk.Entry(widget_frame, show='*', font=('Century Gothic', 12), width=30)
+        password2_entry.grid(row=7, column=0, padx=60, pady='0 5', ipady=5)
 
-    def change_pass(self, event):
-        change_pass_window = Toplevel(self.root)
-        change_pass_window.geometry("500x350")
-        change_pass_window.title("Change Password")
-
-        user_name_label = ttk.Label(change_pass_window, text='User Name')
-        user_name_label.grid(row=0, column=0, padx='20 0', pady=10, sticky='w')
-        user_name_entry = ttk.Entry(change_pass_window, font=self.btn_font)
-        user_name_entry.grid(row=0, column=1, padx=10, pady=10, sticky='w')
-        # user_name_entry.insert(0, self.login_data['user_name'])
-        # user_name_entry.config(state='readonly')
-
-        user_id_label = ttk.Label(change_pass_window, text='User ID')
-        user_id_label.grid(row=1, column=0, padx='20 0', pady=10, sticky='w')
-        user_id_entry = ttk.Entry(change_pass_window, font=self.btn_font)
-        user_id_entry.grid(row=1, column=1, padx=10, pady=10, sticky='w')
-        # user_id_entry.insert(0, self.login_data['user_login'])
-        # user_id_entry.config(state='readonly')
-
-        old_pass_label = ttk.Label(change_pass_window, text='Old Password')
-        old_pass_label.grid(row=2, column=0, padx='20 0', pady=10, sticky='w')
-        old_pass_entry = ttk.Entry(change_pass_window, show='*',font=self.btn_font)
-        old_pass_entry.grid(row=2, column=1, padx=10, pady=10, sticky='w')
-
-        new_pass_label = ttk.Label(change_pass_window, text='New Password')
-        new_pass_label.grid(row=3, column=0, padx='20 0', pady=10, sticky='w')
-        new_pass_entry = ttk.Entry(change_pass_window, show='*', font=self.btn_font)
-        new_pass_entry.grid(row=3, column=1, padx=10, pady=10, sticky='w')
-
-        retype_new_pass_label = ttk.Label(change_pass_window, text='Re-type New Password')
-        retype_new_pass_label.grid(row=4, column=0, padx='20 0', pady=10, sticky='w')
-        retype_new_pass_entry = ttk.Entry(change_pass_window, show='*', font=self.btn_font)
-        retype_new_pass_entry.grid(row=4, column=1, padx=10, pady=10, sticky='w')
-        
         def update_pass():
-            if len(old_pass_entry.get().strip()) == 0 or len(new_pass_entry.get().strip()) == 0 or len(retype_new_pass_entry.get().strip()) == 0:
-                messagebox.showerror('Error', 'Please Provide Old, new and retype-new password')
-                return change_pass_window.lift()
-            if old_pass_entry.get().strip() == self.login_data['user_pass']:
-                if new_pass_entry.get().strip() == retype_new_pass_entry.get().strip():
-                    
-                    try:
-                        con, cur = open_con(True)
-                        if con.is_connected:
-                            cur = con.cursor(dictionary=True)
-                            cur.execute('Update users set user_pass = %s where user_id = %s;', [new_pass_entry.get().strip(), self.login_data['user_id']])
-                            con.commit()
-                            self.login_data['user_pass'] = new_pass_entry.get().strip()
-                            cur.close()
-                            con.close()
-                            messagebox.showinfo('Password Changed', 'Password Updated')
-                            change_pass_window.destroy()
-                    except Exception as e:
-                        messagebox.showerror('Error', f"{e} accured. Connection not established")
-                        change_pass_window.lift()
-                        return
-                else:
-                    messagebox.showerror('Error', 'New and retype-new password mismatched')
-                    return change_pass_window.lift()
-            else:
-                messagebox.showerror('Error', 'Old password mismatched')            
-                return change_pass_window.lift()
-        update_pass_btn = ttk.Button(change_pass_window, text='Update', style="Accent.TButton", command=update_pass)
-        update_pass_btn.grid(row=5, column=1, padx=10, pady=10)
-        change_pass_window.mainloop()
-
-    def login(self, *args):
-        if len(self.user_login_entry.get().strip()) == 0 or len(self.user_password_entry.get().strip()) == 0:
-            return messagebox.showerror('Error', 'Type something in both boxes')
-        widget_list = [self.user_login_entry, self.user_password_entry]
-        for item in widget_list:
-            if item.get().upper().find('UPDATE') != -1 or item.get().upper().find('INSERT') != -1 or item.get().upper().find('DELETE') != -1:
-                return messagebox.showerror('Error', 'Milisous Word Found in entry widget')
-        con, cur = open_con(True)
-        Query = "Select user_id, user_name, user_pass, role from users where user_login = %s;"
-        parm_list = []
-        parm_list.append(self.user_login_entry.get())
-        cur.execute(Query, parm_list)
-        data = cur.fetchall()
-        if len(data) == 0:
-            return messagebox.showerror('Error', 'Invalid User')
-        else:
-            if data[0]['user_pass'] != self.user_password_entry.get().strip():
-                messagebox.showerror('Error', 'Invalid password')
-                return
-            else:
-                
-                parm_list = []
-                parm_list.append(data[0]['user_id'])
-                parm_list.append('User Loged In')
-                
+            if len(password_entry.get().strip()) ==0 or len(password1_entry.get().strip()) ==0 or len(password2_entry.get().strip()) ==0:
+                messagebox.showerror('Empty Password', 'Password input cannot be empty')
+                return change_pass_window.focus()
+            if password1_entry.get() != password2_entry.get():
+                messagebox.showerror('Error', 'Password miss matched')
+                return change_pass_window.focus()
+            con, cur = open_con(False)
+            cur.execute("select user_login from users where user_login = %s and user_pass = %s;", [userlogin.lower(), password_entry.get()])
+            data = cur.fetchall()
+            if data:
+                cur.execute("update users set user_pass = %s where user_login = %s;", [password1_entry.get(), userlogin.lower().lower()])
+                con.commit()
                 cur.close()
                 con.close()
+                messagebox.showinfo('Success', 'Password Updated')
+                change_pass_window.destroy()
+            else:
+                messagebox.showerror('Old Password Error', 'Old Password is Not Correct')
+                return change_pass_window.focus()
+        update_btn = ttk.Button(widget_frame, text='Update Password', command=update_pass)
+        update_btn.grid(row=8, column=0, padx=60, pady=10, ipady=5)
+        change_pass_window.focus()
+        change_pass_window.mainloop()
+    def nitb_login(self,id, passw):
+        self.session = requests.session()
+        url = f'https://admin-icta.nitb.gov.pk/login'
+        try:
+            page = self.session.get(url)
+        except Exception as e:
+            messagebox.showerror('Connection Error', e)
+            return False
+        soup = BeautifulSoup(page.content, 'html.parser')
+        for links in soup.find_all('input', type='hidden'):
+            _token = links.attrs['value']
+            break
+        payload = {'_token':_token, 'email':id, 'password':passw, 'submit':'login'}
+        update_url = 'https://admin-icta.nitb.gov.pk/login'
+        responce = self.session.post(update_url, data=payload)
+        if responce.url == 'https://admin-icta.nitb.gov.pk/dashboard':
+            self.login_status = True
+            return True
+        else:
+            messagebox.showerror('Different Password', 'Your Password for NITB appliantion is differnt than local application')
+            return False
+    def submit_login(self, event=None):
+        if len(self.user_entry.get().strip()) ==0 or len(self.password_entry.get().strip()) ==0:
+            return messagebox.showerror('Input Error', 'Pease provide user id and password')
+        con, cur = open_con(True)
+        if type(cur) is str:
+            return messagebox.showerror('Connection Error', 'Unable to Connect to Db')
+        cur.execute("Select user_id, user_name, user_login, role, user_status from users where user_login = %s and user_pass = %s", [self.user_entry.get().lower(), self.password_entry.get()])
+        self.user_data = cur.fetchone()
+        if self.user_data:    
+            if self.user_data['user_status'] != 'Active':
+                return messagebox.showerror('User Status', "User is not Active")
+            else:
+                self.login_status = True #at this point user authenticated and is active in local database
+                try: #reading config file
+                    f = open("config.json", "r")
+                    j_obj = json.load(f)
+                    f.close()
+                except Exception:
+                    messagebox.showerror('File Not Found', 'Config.json File not found in current directory')
+                    return
+                with open('username.txt', 'w') as f:
+                    f.write(f'{self.user_entry.get()}')
+                try: #trying to extra nitb login from config file
+                    nitb_login = j_obj['nitb_login']
+                    cur.execute("Select user_login, user_pass from users where user_login = %s", [nitb_login])
+                    nitb_login_data = cur.fetchone()
+                    if nitb_login_data:
+                        if self.nitb_login(j_obj['nitb_login'], nitb_login_data['user_pass']) == False:
+                            messagebox.showerror('Authentication Error', 'Incorrect Username and Password for NITB Application.\n Incharge Domicile may update his username and password as per NITB Application')
+                            self.root.destroy()
+                        else:
+                            self.session_status = True
+                            self.root.destroy()
+                    else:
+                        messagebox.showerror('NITB Login Error', f'unable to find data for NITB user login "{nitb_login}" in local db')
+                        self.session_status = False
+                        self.root.destroy()
+                except KeyError:
+                    messagebox.showerror('Configuration Error', 'Config file does not contain valid NITB login')
+                    return
+        
+        else:
+            messagebox.showerror('Invalid Username or password', 'Invalid username or password')    
+            self.login_status = False
+            return
+            
+            
+class LocalLogin(Login):
+    def __init__(self):
+        super().__init__()
+    def submit_login(self, event=None):
+        if len(self.user_entry.get().strip()) ==0 or len(self.password_entry.get().strip()) ==0:
+            return messagebox.showerror('Input Error', 'Pease provide user id and password')
+        con, cur = open_con(True)
+        if type(cur) is str:
+            return messagebox.showerror('Connection Error', 'Unable to Connect to Db')
+        
+        #incase its not new user, therefore it will be checked that this user_id or passwrod exist
+        cur.execute("Select user_id, user_name, role, user_status from users where user_login = %s and user_pass = %s", [self.user_entry.get().lower(), self.password_entry.get()])
+        self.user_data = cur.fetchone()
+        print(self.user_data)
+        if self.user_data:
+            if self.user_data['user_status'] != 'Active':
+                return messagebox.showerror('User Status', "User is not Active")
+            else:
+                self.login_status = True
                 self.root.destroy()
-                self.login_status = "Successfull"
-                self.login_data = data[0]
-                return
 
-    def run(self):
-        self.root.mainloop()
-
-    def exit(self):
+        else:
+            messagebox.showerror('Error', 'Invalid user login or password for local application')
+        
+class SaveLogin(Login):
+    def __init__(self):
+        super().__init__()
+        self.root.title('Save Login')
+    def submit_login(self, event=None):
+        if len(self.user_entry.get().strip()) ==0 or len(self.password_entry.get().strip()) ==0:
+            return messagebox.showerror('Input Error', 'Pease provide user id and password')
+        con, cur = open_con(True)
+        if type(cur) is str:
+            return messagebox.showerror('Connection Error', 'Unable to Connect to Db')
+        cur.execute("insert into users (user_name, user_pass, user_status, user_type) values (%s, %s, 'Active', 'Main User');", [self.user_entry.get().lower(), self.password_entry.get()])
+        con.commit()
         self.root.destroy()
 
-
+class TempLogin(Login):
+    def __init__(self):
+        super().__init__()
+    def submit_login(self, event=None):
+        self.top_label.config(text='Temp Login')
+        self.top_label.update()
+        if len(self.user_entry.get().strip()) ==0 or len(self.password_entry.get().strip()) ==0:
+            return messagebox.showerror('Input Error', 'Pease provide user id and password')
+        con, cur = open_con(True)
+        if type(cur) is str:
+            return messagebox.showerror('Connection Error', 'Unable to Connect to Db')
+        
+        #incase its not new user, therefore it will be checked that this user_id or passwrod exist
+        cur.execute("Select user_id, user_name, main_user_id, user_status from users where user_login = %s and user_pass = %s", [self.user_entry.get().lower(), self.password_entry.get()])
+        self.temp_user_data = cur.fetchone()
+        if self.temp_user_data:
+            if self.temp_user_data['user_status'] != 'Active':
+                return messagebox.showerror('User Status', "User is not Active")
+            else:
+                cur.execute("Select user_id, user_login, user_name, user_pass from users where user_id = %s;", [self.temp_user_data['main_user_id']])
+                self.user_data = cur.fetchone()
+                if self.user_data:
+                    if self.nitb_login(self.user_data['user_login'], self.user_data['user_pass']) == True:
+                        self.login_status = True
+                        self.root.destroy()
+                    else:
+                        messagebox.showerror('NITB Login Error', 'User Name and Password for NITB login are incorrect')
+                else:
+                    messagebox.showerror('User Type Error', 'Main user for temporary user is not defined')
+        else:
+            messagebox.showerror('Error', 'Invalid user login or password for local application')
+        
 if __name__ == '__main__':
-    obj = Login_form()
-    obj.run()
+    obj = Login()
+    obj.login()
+    obj.root.mainloop()
+    print(obj.login_status)
+    print(obj.session_status)
+    

@@ -168,7 +168,6 @@ class NOC_ICT(tk.Tk):
                             values=(0, self.cnic_entry.get(), self.name_entry.get(), self.relation.get(self.relation.curselection()), self.father_name_entry.get()))
             self.cnic_entry.delete('0', 'end')
             self.name_entry.delete('0', 'end')
-            self.father_name_entry.delete('0', 'end')
             self.cnic_entry.focus_set()
         else:
 

@@ -14,3 +14,7 @@ CREATE TABLE `black_list_history` (
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`blk_list_his_id`)
 );
+CREATE TABLE `domicile_reports`.`approvers` (
+  `approver_id` INT NOT NULL AUTO_INCREMENT,
+  `approver_name` VARCHAR(45) NULL,
+  PRIMARY KEY (`approver_id`));
